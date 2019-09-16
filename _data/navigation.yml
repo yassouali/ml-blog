@@ -1,0 +1,12 @@
+# Site navigation links
+
+- title: Posts
+  url: pages/posts/
+- title: Categories
+  url: pages/categories/
+- title: Tags
+  url: pages/tags/
+- title: Recipes
+  url: pages/recipes/
+- title: Search
+  url: pages/search/

@@ -1,0 +1,24 @@
+{% if site.data.navigation %}
+  <div class="navigation-wrapper">
+    <a href="#menu-toggle" id="menu-toggle">{{ site.data.text[site.locale].menu_label | default: 'Menu' }}</a>
+    {% if page.title != 'Blog' %}
+      <nav id="primary-nav" class="site-nav animated drop">
+        <a href="{{ '/' | relative_url }}" rel="home" title="{{ site.title }}">
+          <img src="{{ site.header_logo | relative_url }}" class="site-header-logo animated fadeInDown" alt="{{ site.title }}">
+        </a>
+    {% else %}
+      <nav id="primary-nav" class="site-nav-main animated drop">
+    {% endif %}
+      <ul>
+        {%- for link in site.data.navigation -%}
+          {%- if link.url contains '://' -%}
+            {%- assign url = link.url -%}
+          {%- else -%}
+            {%- assign url = link.url | relative_url -%}
+          {%- endif -%}
+          <li><a href="{{ url }}">{{ link.title }}</a></li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+  </div><!-- /.navigation-wrapper -->
+{% endif %}
