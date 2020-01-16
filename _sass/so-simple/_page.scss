@@ -3,13 +3,15 @@
    ========================================================================== */
 
 .page-wrapper {
+  position: relative;
   margin: 0 auto;
   padding-left: 1em;
   padding-right: 1em;
   max-width: $main-max-width;
+  bottom: 0;
 }
 
-.page-title {
+.page-title, .page-title-main  {
   @include fluid-type($min-vw, $max-vw, 48px, 60px);
   text-align: center;
   margin-top: 0.5em;
@@ -18,6 +20,11 @@
   font-weight: $page-title-weight;
   font-style: italic;
   letter-spacing: -2px;
+}
+
+.page-title-main {
+  @include fluid-type($min-vw, $max-vw, 34px, 46px);
+  text-align: left;
 }
 
 .page-image {
@@ -112,13 +119,13 @@
 
 .page-taxonomies-title {
   font-family: Gill Sans, Verdana;
-  font-size: 0.6em;
+  //font-size: 0.6em;
   line-height: 14px;
   letter-spacing: 2px;
   //font-weight: bold;
   display: inline;
   padding-right: 0.5em;
-  //font-size: 1em;
+  font-size: 1em;
   font-weight: normal;
   text-transform: uppercase;
 
@@ -126,17 +133,16 @@
     display: inline-block;
     margin: 1.5em 0 0.5em;
     padding: 0;
-    font-size: 0.6em;
+    font-size: 0.7em;
     font-weight: normal;
     text-transform: uppercase;
   }
 }
 
 .page-taxonomies {
-  font-family: Verdana;
-  font-size: 10px;
+  font-size: 0.6em;
   line-height: 14px;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   display: inline;
   margin-right: 1em;
   padding: 0;
@@ -223,6 +229,7 @@
 .layout--search {
   .page-wrapper {
     max-width: $main-max-width;
+    
   }
 
   .page-title {
@@ -276,10 +283,13 @@
 
   .page-content {
     
+
+
     @include breakpoint($large) {
       float: right; // display: grid fallback
       width: 78%; // display: grid fallback
       min-width: 0;
+      
     }
 
     @supports (display: grid) {

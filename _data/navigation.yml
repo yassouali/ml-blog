@@ -6,7 +6,9 @@
   url: pages/categories/
 - title: Tags
   url: pages/tags/
-- title: Recipes
-  url: pages/recipes/
-- title: Search
-  url: pages/search/
+- title: Personal
+  url: pages/personal/
+- title: About
+  url: pages/about/
+# - title: Search
+#   url: pages/search/

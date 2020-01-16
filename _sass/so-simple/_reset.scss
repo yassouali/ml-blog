@@ -10,6 +10,7 @@
    ========================================================================== */
 
 html {
+  min-height: 100%;
   font-family: $base-font-family; /* 1 */
   box-sizing: border-box;
   -ms-text-size-adjust: 100%; /* 2 */

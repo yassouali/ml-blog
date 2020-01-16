@@ -4,13 +4,16 @@
 
 html {
   @include fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size);
+  height: 100%;
 }
 
 body {
   background: $background-color;
   color: $text-color;
   border-top: solid 0.25em $nav-background-color;
+  height: 100%;
 }
+
 
 blockquote,
 q {

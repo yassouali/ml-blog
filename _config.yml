@@ -19,7 +19,7 @@ remote_theme: mmistakes/so-simple-theme
 
 locale: en-US
 title: "Yassine"
-description: "A blog."
+description: "Another ML blog."
 baseurl: "/blog"
 url: "https://mmistakes.github.io"
 logo: "/images/logo.png"
@@ -36,11 +36,11 @@ google_fonts:
     weights: "400,400i,700,700i"
   - name: "Livvic"
     weights: "400,400i,700,700i"
-google_analytics: "UA-2011187-2"
+google_analytics: "UA-156247515-1"
 disqus:
-  shortname: "sosimpletheme"
+  shortname: "yassineouali"
 twitter:
-  username: "mmistakes"
+  username: "yass_ouali"
 google_site_verification: "UQj93ERU9zgECodaaXgVpkjrFn9UrDMEzVamacSoQ8Y"
 
 # Liquid
@@ -71,10 +71,6 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - node_modules
-  - vendor/bundle/
-  - vendor/cache/
-  - vendor/gems/
-  - vendor/ruby/
 
 plugins:
   - jekyll-seo-tag
@@ -85,7 +81,7 @@ plugins:
 
 # Collections
 collections:
-  recipes:
+  personal:
     output: true
     permalink: /:collection/:path/
 
@@ -99,10 +95,11 @@ defaults:
       layout: post
       comments: true
       share: true
-  # Recipe defaults
+
+  # Personnal Posts
   - scope:
-      path: "_recipes"
-      type: recipes
+      path: "_personal"
+      type: personal
     values:
       layout: post
       comments: true

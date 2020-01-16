@@ -1,4 +1,4 @@
-{% if page.title == 'Blog' and site.logo %}
+{% if page.title == 'Blog' or page.title == 'Personal' and site.logo %}
   <header class="masthead">
     <div class="wrap">
         <a href="{{ '/' | relative_url }}" class="site-logo" rel="home" title="{{ site.title }}">
@@ -6,7 +6,7 @@
         </a>
         {% assign page_image = page.image.path | default: page.image %}
         {% unless page_image %}
-          {% if page.url == '/' %}
+          {% if page.url == '/' or page.url == '/pages/personal/' %}
             <h1 class="site-title animated fadeIn"><a href="{{ '/' | relative_url }}">ML ・CS ・ Tech</a></h1>
           {% else %}
             <div class="site-title animated fadeIn"><a href="{{ '/' | relative_url }}">{{ site.title }}</a></div>

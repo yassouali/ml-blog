@@ -26,6 +26,7 @@
   }
 }
 
+
 .site-nav {
   display: block;
   text-align: right;
@@ -36,14 +37,13 @@
 
   ul {
     display: block;
-    margin-right: 40px;
+    margin-right: 25%;
+    padding: 0;
     list-style: none;
     border-radius: 0 0 (2 * $border-radius) (2 * $border-radius);
 
-    @include breakpoint($medium) {
-      display: inline-block;
-    }
     @include breakpoint($small) {
+      margin-right: 0;
       text-align: center;
     }
   }
@@ -80,11 +80,12 @@
 .site-nav-main {
   @extend .site-nav;
   text-align: center;
+  margin: 0;
 }
 
 .site-header-logo {
   float: left;
-  margin-left: 30px;
+  margin-left: 25%;
   width: 2 * $header-logo-width;
   height: 2 * $header-logo-height;
   border-radius: 2 * $header-logo-width;
@@ -99,20 +100,24 @@
 
 .masthead {
   @include clearfix;
-  height: 120px;
   margin-bottom: 3em;
   text-align: center;
   background-image: url('../../images/backgound.jpg');
   background-position-y: bottom;
   background-size: cover;
 
-  @include breakpoint($large) {
-    height: 260px;
+  @include breakpoint($small) {
+    display: block;
+    height: 15%;
+    width: 100%;
   }
   @include breakpoint($medium) {
-    display: 260px;
+    display: block;
+    height: 27%;
+    width: 100%;
   }
 }
+
 
 .site-title {
   margin: 0.3em 0 0;
@@ -174,16 +179,23 @@
 
 .site-footer {
   @include clearfix();
-  padding: 0.2em 0;
+  margin: 8em 1em;
+  padding: 2em 0;
   text-align: center;
   border-top: 1px solid $border-color;
-  bottom: 0;
+  margin-bottom: 0;
+  
+  .social-icons {
+    margin-bottom: 0.25em;
+  }
 
   .social-icon {
     display: inline-block;
     padding: 0 0.25em;
   }
 }
+
+
 
 .copyright {
   color: lighten($text-color, 35%);
