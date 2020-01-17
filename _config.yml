@@ -21,7 +21,7 @@ locale: en-US
 title: "Yassine"
 description: "Another ML blog."
 baseurl: "/blog"
-url: "https://yassouali.github.io"
+url: "https://yassouali.github.io/"
 logo: "/images/logo.png"
 favicon: "/images/favicon.ico"
 header_logo: "/images/header_logo.png"
