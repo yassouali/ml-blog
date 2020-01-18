@@ -389,9 +389,11 @@ tr, td, th { vertical-align: middle; }
 
 .site-logo-img { margin-top: 15px; width: 200px; height: 40px; }
 
-@media (min-width: 48em) { .site-logo-img { margin-top: 60px; width: 400px; height: 80px; } }
+@media (min-width: 48em) { .site-logo-img { margin-top: 15px; width: 300px; height: 60px; } }
 
-@media (min-width: 64em) { .site-logo-img { margin-top: 60px; width: 400px; height: 80px; } }
+@media (min-width: 64em) { .site-logo-img { margin-top: 22px; width: 360px; height: 72px; } }
+
+@media (min-width: 120em) { .site-logo-img { margin-top: 65px; width: 420px; height: 84px; } }
 
 .site-footer { clear: both; margin: 8em 1em; padding: 2em 0; text-align: center; border-top: 1px solid #cccccc; margin-bottom: 0; }
 

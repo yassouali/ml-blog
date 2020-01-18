@@ -165,14 +165,19 @@
   height: $site-logo-height;
 
   @include breakpoint($medium) {
-    margin-top: 60px;
-    width: 2*$site-logo-width;
-    height: 2*$site-logo-height;
+    margin-top: 15px;
+    width: 1.5*$site-logo-width;
+    height: 1.5*$site-logo-height;
   }
   @include breakpoint($large) {
-    margin-top: 60px;
-    width: 2*$site-logo-width;
-    height: 2*$site-logo-height;
+    margin-top: 22px;
+    width: 1.8*$site-logo-width;
+    height: 1.8*$site-logo-height;
+  }
+  @include breakpoint($xxlarge) {
+    margin-top: 65px;
+    width: 2.1*$site-logo-width;
+    height: 2.1*$site-logo-height;
   }
 }
 
