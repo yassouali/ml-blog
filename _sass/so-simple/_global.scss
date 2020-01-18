@@ -165,7 +165,7 @@
   height: $site-logo-height;
 
   @include breakpoint($medium) {
-    margin-top: 60px;
+    margin-top: 30px;
     width: 2*$site-logo-width;
     height: 2*$site-logo-height;
   }
