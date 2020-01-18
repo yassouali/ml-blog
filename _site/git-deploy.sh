@@ -7,8 +7,11 @@ bundle exec jekyll build
 
 echo "Git add ..."
 git add .
+
 echo "Committing ..."
-git commit -m "publishing the website"
+read -r -p 'Commit message: ' desc
+git commit -m "$desc"
+
 echo "Pushing the changes to gh-pages branch ..."
 git push -u origin gh-pages
 
