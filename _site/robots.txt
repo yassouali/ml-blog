@@ -1,1 +1,1 @@
-Sitemap: https://yassouali.github.io//y-blog/sitemap.xml
+Sitemap: https://yassouali.github.io//ml-blog/sitemap.xml
