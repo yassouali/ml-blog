@@ -120,8 +120,7 @@
 
 
 .site-title {
-  margin: 0.3em 0 0;
-  padding: 0;
+  margin: 0;
   @include fluid-type($min-vw, $max-vw, $h2-min, $h2-max);
   font-weight: 300;
   font-family: $sans-serif-livvic;
@@ -130,6 +129,26 @@
   a {
     color: $base00;
     text-decoration: none;
+  }
+  @include breakpoint($medium) {
+    padding-bottom: 0;
+    font-family: $sans-serif-livvic;
+    font-size: 20px;
+  }
+  @include breakpoint($large) {
+    padding-bottom: 0;
+    font-family: $sans-serif-livvic;
+    font-size: 22px;
+  }
+  @include breakpoint($xlarge) {
+    padding-bottom: 0;
+    font-family: $sans-serif-livvic;
+    font-size: 22px;
+  }
+  @include breakpoint($xxlarge) {
+    padding-bottom: 0.4em;
+    font-family: $sans-serif-livvic;
+    font-size: 27px;
   }
 }
 
@@ -170,14 +189,14 @@
     height: 1.5*$site-logo-height;
   }
   @include breakpoint($large) {
-    margin-top: 22px;
+    margin-top: 20px;
     width: 1.7*$site-logo-width;
     height: 1.7*$site-logo-height;
   }
   @include breakpoint($xlarge) {
-    margin-top: 22px;
-    width: 1.8*$site-logo-width;
-    height: 1.8*$site-logo-height;
+    margin-top: 20px;
+    width: 1.6*$site-logo-width;
+    height: 1.6*$site-logo-height;
   }
   @include breakpoint($xxlarge) {
     margin-top: 65px;

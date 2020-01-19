@@ -363,7 +363,7 @@ tr, td, th { vertical-align: middle; }
 
 @media (min-width: 48em) { .masthead { display: block; height: 27%; width: 100%; } }
 
-.site-title { margin: 0.3em 0 0; padding: 0; font-weight: 300; font-family: "Livvic", sans-serif; font-size: 300px; }
+.site-title { margin: 0; font-weight: 300; font-family: "Livvic", sans-serif; font-size: 300px; }
 
 .site-title { font-size: 19.436284208px; }
 
@@ -372,6 +372,14 @@ tr, td, th { vertical-align: middle; }
 @media screen and (min-width: 1280px) { .site-title { font-size: 27.648px; } }
 
 .site-title a { color: #fafafa; text-decoration: none; }
+
+@media (min-width: 48em) { .site-title { padding-bottom: 0; font-family: "Livvic", sans-serif; font-size: 20px; } }
+
+@media (min-width: 64em) { .site-title { padding-bottom: 0; font-family: "Livvic", sans-serif; font-size: 22px; } }
+
+@media (min-width: 80em) { .site-title { padding-bottom: 0; font-family: "Livvic", sans-serif; font-size: 22px; } }
+
+@media (min-width: 120em) { .site-title { padding-bottom: 0.4em; font-family: "Livvic", sans-serif; font-size: 27px; } }
 
 .site-description { text-align: right; display: none; margin-top: 40px; margin-right: 15px; color: #fafafa; font-family: "Lora", serif; font-weight: 400; font-style: italic; }
 
@@ -391,9 +399,9 @@ tr, td, th { vertical-align: middle; }
 
 @media (min-width: 48em) { .site-logo-img { margin-top: 15px; width: 300px; height: 60px; } }
 
-@media (min-width: 64em) { .site-logo-img { margin-top: 22px; width: 340px; height: 68px; } }
+@media (min-width: 64em) { .site-logo-img { margin-top: 20px; width: 340px; height: 68px; } }
 
-@media (min-width: 80em) { .site-logo-img { margin-top: 22px; width: 360px; height: 72px; } }
+@media (min-width: 80em) { .site-logo-img { margin-top: 20px; width: 320px; height: 64px; } }
 
 @media (min-width: 120em) { .site-logo-img { margin-top: 65px; width: 420px; height: 84px; } }
 
