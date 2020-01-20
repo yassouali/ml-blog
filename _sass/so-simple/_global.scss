@@ -143,7 +143,7 @@
   @include breakpoint($xlarge) {
     padding-bottom: 0;
     font-family: $sans-serif-livvic;
-    font-size: 22px;
+    font-size: 25px;
   }
   @include breakpoint($xxlarge) {
     padding-bottom: 0.4em;
@@ -194,9 +194,9 @@
     height: 1.7*$site-logo-height;
   }
   @include breakpoint($xlarge) {
-    margin-top: 20px;
-    width: 1.6*$site-logo-width;
-    height: 1.6*$site-logo-height;
+    margin-top: 40px;
+    width: 1.8*$site-logo-width;
+    height: 1.8*$site-logo-height;
   }
   @include breakpoint($xxlarge) {
     margin-top: 65px;
