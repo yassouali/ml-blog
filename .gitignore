@@ -4,6 +4,7 @@ _asset_bundler_cache
 .jekyll-cache
 .jekyll-metadata
 .sass-cache
+_site
 *.gem
 *.sublime-project
 *.sublime-workspace
