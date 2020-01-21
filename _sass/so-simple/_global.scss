@@ -105,17 +105,20 @@
   background-image: url('../../images/backgound.jpg');
   background-position-y: bottom;
   background-size: cover;
+  display: block;
+  height: 27vh;
+  width: 100%;
 
-  @include breakpoint($small) {
-    display: block;
-    height: 15%;
-    width: 100%;
-  }
-  @include breakpoint($medium) {
-    display: block;
-    height: 27%;
-    width: 100%;
-  }
+  // @include breakpoint($small) {
+  //   display: block;
+  //   height: 15%;
+  //   width: 100%;
+  // }
+  // @include breakpoint($medium) {
+  //   display: block;
+  //   height: 27%;
+  //   width: 100%;
+  // }
 }
 
 
@@ -194,11 +197,16 @@
     height: 1.7*$site-logo-height;
   }
   @include breakpoint($xlarge) {
-    margin-top: 40px;
+    margin-top: 35px;
     width: 1.8*$site-logo-width;
     height: 1.8*$site-logo-height;
   }
-  @include breakpoint($xxlarge) {
+  @include breakpoint($xlarge) {
+    margin-top: 50px;
+    width: 1.9*$site-logo-width;
+    height: 1.9*$site-logo-height;
+  }
+  @include breakpoint($xxxlarge) {
     margin-top: 65px;
     width: 2.1*$site-logo-width;
     height: 2.1*$site-logo-height;

@@ -3,6 +3,7 @@ title: "Main fucntionnalities of the site"
 excerpt: "We can add an excerpt."
 date: 2019-09-08T00:00:00-00:00
 hidden: true
+published: false
 tags: 
   - functionnalities
   - this is a tag

@@ -1,7 +1,9 @@
 # Site navigation links
 
+# - title: Posts
+#   url: pages/posts/
 - title: Posts
-  url: pages/posts/
+  url: /
 - title: Categories
   url: pages/categories/
 - title: Tags
