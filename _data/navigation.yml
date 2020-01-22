@@ -4,13 +4,14 @@
 #   url: pages/posts/
 - title: Posts
   url: /
-- title: Categories
-  url: pages/categories/
+
 - title: Tags
   url: pages/tags/
+  - title: About
+  url: pages/about/
 # - title: Personal
 #   url: pages/personal/
-- title: About
-  url: pages/about/
+# - title: Categories
+#   url: pages/categories/
 # - title: Search
 #   url: pages/search/
