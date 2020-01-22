@@ -4,7 +4,6 @@
 #   url: pages/posts/
 - title: Posts
   url: /
-
 - title: Tags
   url: pages/tags/
   - title: About
