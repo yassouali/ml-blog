@@ -33,6 +33,13 @@
     <footer class="entry-meta">
       {% if site.read_time %}{% include read-time.html %}{% endif %}
       {% if entry.date %}{% include entry-date.html %}{% endif %}
+      {% if entry.tags.size > 0 %}
+        <p class="post-meta" style="display:inline">
+          {% for tag in entry.tags %}
+            <a class="post-tag"><nobr>{{ tag }}</nobr>&nbsp;</a>
+          {% endfor %}
+        </p>
+      {% endif %}
     </footer>
   {% endif %}
 </article>

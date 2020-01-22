@@ -11,6 +11,13 @@ $xxlarge: 1580px !default;
 $xxxlarge: 1920px !default;
 
 
+/* For post info (data, author) & tags */
+$base-font-family: "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !default;
+$base-font-size:   16px !default;
+$base-font-weight: 400 !default;
+$base-small-font-size:  $base-font-size * 0.875 !default;
+$base-line-height: 1.65 !default;
+
 /* Fluid type */
 $base-font-size: 16px !default;
 $min-vw: $small !default;
@@ -46,7 +53,8 @@ $sans-serif-font-family: "Source Sans Pro", sans-serif !default;
 $monospace-font-family: Menlo, Consolas, Monaco, "Courier New", Courier, monospace !default;
 $sans-serif-livvic: "Livvic", sans-serif !default;
 
-$base-font-family: $sans-serif-font-family !default;
+// %TODO: This is the default font, replaced by slightly clearer font
+// $base-font-family: $sans-serif-font-family !default; 
 $headline-font-family: $sans-serif-font-family !default;
 $title-font-family: $serif-font-family !default;
 $description-font-family: $serif-font-family !default;

@@ -76,6 +76,25 @@
   }
 }
 
+.post-meta {
+  font-size: 14px;
+  color: #828282 ;
+
+  a.post-tag {
+    border-radius: 5px;
+    border: 1px solid #828282;
+    color: #828282;
+    padding: 1px 5px;
+    margin-left: 5px;
+    &:hover {
+      border: 1px solid #07667775;
+      text-decoration: none;
+      color: #ffffff;
+      background: #07667775;
+    }
+  }
+}
+
 
 .site-nav-main {
   @extend .site-nav;
@@ -106,9 +125,10 @@
   background-position-y: bottom;
   background-size: cover;
   display: block;
-  height: 27vh;
   width: 100%;
-
+  @include fluid-type($min-vw, $max-vw, $h2-min, $h2-max);
+  
+  // height: 27vh;
   // @include breakpoint($small) {
   //   display: block;
   //   height: 15%;
@@ -124,7 +144,7 @@
 
 .site-title {
   margin: 0;
-  @include fluid-type($min-vw, $max-vw, $h2-min, $h2-max);
+  @include fluid-type($min-vw, $max-vw, $h3-min, $h3-max);
   font-weight: 300;
   font-family: $sans-serif-livvic;
   font-size: 300px;
@@ -133,33 +153,34 @@
     color: $base00;
     text-decoration: none;
   }
-  @include breakpoint($medium) {
-    padding-bottom: 0;
-    font-family: $sans-serif-livvic;
-    font-size: 20px;
-  }
-  @include breakpoint($large) {
-    padding-bottom: 0;
-    font-family: $sans-serif-livvic;
-    font-size: 22px;
-  }
-  @include breakpoint($xlarge) {
-    padding-bottom: 0;
-    font-family: $sans-serif-livvic;
-    font-size: 25px;
-  }
-  @include breakpoint($xxlarge) {
-    padding-bottom: 0.4em;
-    font-family: $sans-serif-livvic;
-    font-size: 27px;
-  }
+  // @include breakpoint($medium) {
+  //   padding-bottom: 0;
+  //   font-family: $sans-serif-livvic;
+  //   font-size: 20px;
+  // }
+  // @include breakpoint($large) {
+  //   padding-bottom: 0;
+  //   font-family: $sans-serif-livvic;
+  //   font-size: 22px;
+  // }
+  // @include breakpoint($xlarge) {
+  //   padding-bottom: 0;
+  //   font-family: $sans-serif-livvic;
+  //   font-size: 25px;
+  // }
+  // @include breakpoint($xxlarge) {
+  //   padding-bottom: 0.4em;
+  //   font-family: $sans-serif-livvic;
+  //   font-size: 27px;
+  // }
 }
 
 .site-description {
   @include fluid-type($min-vw, $max-vw, $h5-min, $h5-max);
   text-align: right;
   display: none;
-  margin-top: 40px;
+  margin-top: 2%;
+  margin-bottom: 0.5%;
   margin-right: 15px;
   color: $base00;
   font-family: $description-font-family;
@@ -182,35 +203,36 @@
 }
 
 .site-logo-img {
-  margin-top: 15px;
-  width: $site-logo-width;
-  height: $site-logo-height;
+  margin-top: 2.5%;
+  width: 25%;
+  // height: $site-logo-height;
+  @include fluid-type($min-vw, $xxxlarge, $h2-min, $h2-max);
 
-  @include breakpoint($medium) {
-    margin-top: 15px;
-    width: 1.5*$site-logo-width;
-    height: 1.5*$site-logo-height;
-  }
-  @include breakpoint($large) {
-    margin-top: 20px;
-    width: 1.7*$site-logo-width;
-    height: 1.7*$site-logo-height;
-  }
-  @include breakpoint($xlarge) {
-    margin-top: 35px;
-    width: 1.8*$site-logo-width;
-    height: 1.8*$site-logo-height;
-  }
-  @include breakpoint($xlarge) {
-    margin-top: 50px;
-    width: 1.9*$site-logo-width;
-    height: 1.9*$site-logo-height;
-  }
-  @include breakpoint($xxxlarge) {
-    margin-top: 65px;
-    width: 2.1*$site-logo-width;
-    height: 2.1*$site-logo-height;
-  }
+  // @include breakpoint($medium) {
+  //   margin-top: 15px;
+  //   width: 1.5*$site-logo-width;
+  //   height: 1.5*$site-logo-height;
+  // }
+  // @include breakpoint($large) {
+  //   margin-top: 20px;
+  //   width: 1.7*$site-logo-width;
+  //   height: 1.7*$site-logo-height;
+  // }
+  // @include breakpoint($xlarge) {
+  //   margin-top: 35px;
+  //   width: 1.8*$site-logo-width;
+  //   height: 1.8*$site-logo-height;
+  // }
+  // @include breakpoint($xlarge) {
+  //   margin-top: 50px;
+  //   width: 1.9*$site-logo-width;
+  //   height: 1.9*$site-logo-height;
+  // }
+  // @include breakpoint($xxxlarge) {
+  //   margin-top: 65px;
+  //   width: 2.1*$site-logo-width;
+  //   height: 2.1*$site-logo-height;
+  // }
 }
 
 

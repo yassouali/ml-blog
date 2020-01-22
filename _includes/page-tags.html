@@ -1,14 +1,20 @@
 {% if page.tags.size > 0 %}
-  <h3 class="page-taxonomies-title">{{ site.data.text[site.locale].tags | default: 'Tags' }}</h3>
-  <ul class="page-taxonomies">
-    {%- for tag in page.tags -%}
-      <li class="page-taxonomy">
-        {%- if site.tag_archive_path -%}
-          <a href="{{ tag | slugify | prepend: site.tag_archive_path | relative_url }}" title="{{ site.data.text[site.locale].pages_tagged | default: 'Pages tagged' }} {{ tag }}" rel="tag">{{ tag }}</a>
-        {%- else -%}
-          {{ tag }}
-        {%- endif -%}
-      </li>
-    {%- endfor- %}
-  </ul>
+  <p class="post-meta">
+
+    <time datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
+      {% assign date_format = site.minima.date_format | default: "%b %-d, %Y" %}
+      {{ page.date | date: date_format }}
+    </time>
+
+    <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+      by <span itemprop="name">{{ site.author.name }}</span>
+    </span>
+
+    <span>
+      {% for tag in page.tags %}
+        <a class="post-tag"><nobr>{{ tag }}</nobr>&nbsp;</a>
+      {% endfor %}
+    </span>
+  </p>
 {% endif %}
+
