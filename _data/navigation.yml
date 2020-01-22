@@ -3,11 +3,11 @@
 # - title: Posts
 #   url: pages/posts/
 - title: Posts
-    url: /
+  url: /
 - title: Tags
-    url: pages/tags/
+  url: pages/tags/
 - title: About
-    url: pages/about/
+  url: pages/about/
 # - title: Personal
 #   url: pages/personal/
 # - title: Categories
