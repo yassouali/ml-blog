@@ -1,18 +1,31 @@
-{% if page.title == 'Blog' or page.title == 'Personal' and site.logo %}
-  <header class="masthead">
-    <div class="wrap">
-        <a href="{{ '/' | relative_url }}" class="site-logo" rel="home" title="{{ site.title }}">
-          <img src="{{ site.logo | relative_url }}" class="site-logo-img animated fadeInDown" alt="{{ site.title }}">
-        </a>
-        {% assign page_image = page.image.path | default: page.image %}
-        {% unless page_image %}
-          {% if page.url == '/' or page.url == '/pages/personal/' %}
-            <h1 class="site-title animated fadeIn"><a href="{{ '/' | relative_url }}">ML ・CS ・ Tech</a></h1>
-          {% else %}
-            <div class="site-title animated fadeIn"><a href="{{ '/' | relative_url }}">{{ site.title }}</a></div>
-          {% endif %}
-          <p class="site-description animated fadeIn" itemprop="description">{{ site.description }}</p>
-        {% endunless %}
-    </div>
-  </header><!-- /.masthead -->
+{% if page.title == 'Blog' or page.title == 'Personal' or page.title == 'About' or page.title == 'Posts' and site.logo %}
+
+{% if page.title == 'About' %}
+  <header class="masthead" style="background-image: url('{{ site.bg-about | prepend: site.baseurl | replace: '//', '/' }}')">
+{% elsif page.title == 'Posts'%}
+  <header class="masthead" style="background-image: url('{{ site.bg-post | prepend: site.baseurl | replace: '//', '/' }}')">
+{% else %}
+  <header class="masthead" style="background-image: url('{{ site.background | prepend: site.baseurl | replace: '//', '/' }}')">
 {% endif %}
+  
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="page-heading">
+            
+            {% if page.title == 'Blog' or page.title == 'Personal' %}
+              <img src="{{ site.logo | relative_url }}" class="site-logo-img animated fadeInDown" alt="{{ site.title }}">
+              <span class="subheading">{{ site.description }}</span>
+            {% else %}
+              <h1>{{ page.title }}</h1>
+            {% endif %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+{% endif %}
+
+

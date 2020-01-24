@@ -2,7 +2,7 @@
   <div class="navigation-wrapper">
     <a href="#menu-toggle" id="menu-toggle">{{ site.data.text[site.locale].menu_label | default: 'Menu' }}</a>
     {% if page.title != 'Blog' %}
-      <nav id="primary-nav" class="site-nav animated drop">
+      <nav id="primary-nav" class="site-nav animated drop" >
         <a href="{{ '/' | relative_url }}" rel="home" title="{{ site.title }}">
           <img src="{{ site.header_logo | relative_url }}" class="site-header-logo animated fadeInDown" alt="{{ site.title }}">
         </a>

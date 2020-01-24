@@ -23,8 +23,8 @@
 }
 
 .page-title-main {
-  @include fluid-type($min-vw, $max-vw, 34px, 46px);
-  text-align: left;
+  @include fluid-type($min-vw, $max-vw, 38px, 50px);
+  text-align: center;
 }
 
 .page-image {

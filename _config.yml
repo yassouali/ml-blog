@@ -3,12 +3,18 @@ remote_theme: mmistakes/so-simple-theme
 
 locale: en-US
 title: "Yassine"
-description: "Another ML blog."
+description: "A blog about everything Machine Learning and Computer Science."
 baseurl: "/ml-blog"
 url: "https://yassouali.github.io/"
+
+# Images 
 logo: "/images/logo.png"
 favicon: "/images/favicon.ico"
+background: "/images/backgound.jpg"
+bg-about: "/images/about-bg.jpg"
+bg-post: "/images/bg-post.jpg"
 header_logo: "/images/header_logo.png"
+
 date_format: "%B %-d, %Y"
 read_time: true
 words_per_minute: 200
