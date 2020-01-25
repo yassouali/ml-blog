@@ -1,14 +1,6 @@
-{% if page.title == 'Blog' or page.title == 'Personal' or page.title == 'About' or page.title == 'Posts' and site.logo %}
-
-{% if page.title == 'About' %}
-  <header class="masthead" style="background-image: url('{{ site.bg-about | prepend: site.baseurl | replace: '//', '/' }}')">
-{% elsif page.title == 'Posts'%}
-  <header class="masthead" style="background-image: url('{{ site.bg-post | prepend: site.baseurl | replace: '//', '/' }}')">
-{% else %}
-  <header class="masthead" style="background-image: url('{{ site.background | prepend: site.baseurl | replace: '//', '/' }}')">
-{% endif %}
-  
-    <div class="overlay"></div>
+{% if page.background %}
+<header class="masthead" style="background-image: url('{{ page.background | prepend: site.baseurl | replace: '//', '/' }}')">
+  <div class="overlay"></div>
     <div class="container">
       <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">

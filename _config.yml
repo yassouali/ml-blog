@@ -10,9 +10,7 @@ url: "https://yassouali.github.io/"
 # Images 
 logo: "/images/logo.png"
 favicon: "/images/favicon.ico"
-background: "/images/backgound.jpg"
-bg-about: "/images/about-bg.jpg"
-bg-post: "/images/bg-post.jpg"
+
 header_logo: "/images/header_logo.png"
 
 date_format: "%B %-d, %Y"
