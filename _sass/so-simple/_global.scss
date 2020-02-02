@@ -49,6 +49,10 @@ hr {
     list-style: none;
     border-radius: 0 0 (2 * $border-radius) (2 * $border-radius);
 
+    @include breakpoint($small) {
+      text-align: center;
+    }
+
     @include breakpoint($medium) {
     margin-left: 65%;
     }

@@ -8,6 +8,10 @@ header.masthead {
   .page-heading,
   .post-heading,
   .site-heading {
+    @include breakpoint($small) {
+      display: none;
+    }
+    
     padding: 130px 0 70px;
     color: white;
     @media only screen and (min-width: 768px) {
