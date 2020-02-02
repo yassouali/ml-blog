@@ -6,7 +6,7 @@ excerpt: "Given the large amounts of training data required to train deep nets,
           Semi-supservised learning (SSL) is possible solutions to such hurdles. In this blog post
           we present some of the new advance in SSL in the age of Deep Learning."
 date: 2020-01-17 18:00:00
-published: false
+published: true
 tags: 
   - long-read
   - deep-learning
@@ -74,10 +74,16 @@ There have been many SSL methods and approches that have introduced over the yea
 
 - **Consistency Regularization (Consistency Training).** Based on the assumption that if a realistic perturbation was applied to the unbeled data points, the prediction should not change significantly. We can then train the model to have a consistent prediction on a given unbaled example and its perturbed version.
 - **Generative models.** Similar to the supervised setting, where the learned features on one task can be transferred to other down stream tasks. Generative models that are able to generate images from the data distribution \\(p(x)\\) must learn transferable features to a supervised task on \\(p(x \| y)\\) for a given task with targets \\(y\\).
-- **Graph Based Algorithms.** A labeld and unbaled data point the nodes of the graph, and the objective is to propagate the labels from the labeled nodes to the unlabled ones,the similar to nodes \\(n_i\\) and \\(n_j\\) are, the more likely it is that they share the same label.
+- **Graph Based Algorithms.** A labeld and unbaled data points constitute the nodes of the graph, and the objective is to propagate the labels from the labeled nodes to the unlabled ones. The similarity of two nodes \\(n_i\\) and \\(n_j\\) is reflected by how strong is the edge \\(e_{ij}\\) between them.
 - **Bootstraping.** A trained model on the labeled set can be used to produce additionnal training examples extracted from the unlabled set, the extracted examples can be based on some heuristic. Some examples of Bootstraping based SSL are *Self-training*, *Co-training* and *Multi-View Learning*.
 
-In this post, a after brief introduction to the mentionned methods, we will focus more on consistency Regularization based approches, given that they are the most commonly used methods in deep learning.
+In this post, we will focus more on consistency regularization based approches, given that they are the most commonly used methods in deep learning, and we will present a brief introduction to the other methods, 
 
 ## Assumptions:
 
+But when can we apply SSL algorithms? SSL algorithms only work under some condistion, and follow some assumptions about the structure of nature of the data that need to hold. Without such assumptions, it would not be possible to generalize from a finite training set to a set of possibly infinitely many unseen test cases.
+
+The main assumptions in SSL are:
+* **The Smoothness Assumption**: *« If two points \\(x_1\\), \\(x_2\\) in a high-density regionare close, then so should be the corresponding outputs \\(y_1\\), \\(y_2\\) »*. Meaning that if two inputs are of the same class and belong to the same cluster, which is a high desity region of the input space, the their correponding outputs need to be close. And the inverse hold true (if the two points are separated by a low-density region, the outputs must distant). This assumption can be quite helpful in a classification task, but not so much for regression.
+* **The Cluster Assumption**: *« If points are in the same cluster, they are likely to be of the same class. »* In this case, we suppose that input data points form clusters, and each cluster correponds to one of the output classes. And  decision boudary must lie in low density region for get the correct classification. This assumption is a special case of the smoothness assumption. With this assumption, we can restrict our model to have consistent prediction on the unblaled data over some small perturbations.
+* **The Manifold Assumption**: *« The (high-dimensional) data lie (roughly) on a low-dimensional manifold. »* With high dimentionnal space, where the volume grow exponenetially with the number of dimsions, it can quite hard to estimate the true data distribution for generative tasks, and the distances are similar regardless of the calss type, make a discriminative quite chalenging. However, if our input data lies on the some lower manifold, we can try to find low dimensionnal representation using the unlabled data, and then use the labled data to solve the simplefied task.
