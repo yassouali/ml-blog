@@ -54,7 +54,8 @@ hr {
     }
 
     @include breakpoint($medium) {
-    margin-left: 65%;
+      text-align: left;
+      margin-left: 65%;
     }
 
     @include breakpoint($xlarge) {
