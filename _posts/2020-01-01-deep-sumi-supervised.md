@@ -14,7 +14,7 @@ tags:
 ---
 
 Deep neural networks demonstrated their ability to provide 
-remarkable perfomances on certain supervised learning tasks (e.g. image classification, language Modeling) when trained on
+remarkable perfomances on certain supervised learning tasks (e.g. image classification, language modeling) when trained on
 large collections of labeled data (e.g. ImageNet, Wikitext-103). However,
 creating such large collections of data requires a considerable amount of ressources, time and effort. Such resources may not be available in a lot of practical cases,
 which limits the adoption and application of many deep learning (DL) methods.
@@ -33,11 +33,10 @@ This post discusses SSL in a deep learning setting, and goes through some of SSL
 > Semi-supervised learning (SSL) is halfway between supervised and unsupervised learning.
 In addition to unlabeled data, the algorithm is provided with some supervision
 information – but not necessarily for all examples. Often, this information will
-be the targets associated with some of the examples. In this case, the data set
-\\(X=(x_{i})_{i \in[n]}\\) can be divided into two parts: the points
-\\(X_{l}:=(x_{1}, \ldots, x_{l})\\), forwhich labels
-\\(Y_{l}:=\left(y_{1}, \dots, y_{l}\right)\\) are provided, and the points
-\\(X_{u}:=\left(x_{l+1}, \ldots, x_{l+u}\right)\\), the labels of which are
+be the targets associated with some of the examples. In this case, the data set \\( X=\left(x_{i}\right); i \in [n]\\)
+can be divided into two parts: the points \\( X_{l}:=\left(x_{1}, \dots, x_{l}\right) \\), for which labels
+\\( Y_{l}:=\left(y_{1}, \dots, y_{l}\right) \\) are provided, and the points
+\\( X_{u}:=\left(x_{l+1}, \ldots, x_{l+u}\right) \\), the labels of which are
 not known.
 > <footer><strong>Chapelle et al.</strong> &mdash;
 > <a href="http://www.acad.bg/ebook/ml/MITPress- SemiSupervised Learning.pdf">SSL book</a> 
@@ -77,13 +76,64 @@ There have been many SSL methods and approches that have introduced over the yea
 - **Graph Based Algorithms.** A labeld and unbaled data points constitute the nodes of the graph, and the objective is to propagate the labels from the labeled nodes to the unlabled ones. The similarity of two nodes \\(n_i\\) and \\(n_j\\) is reflected by how strong is the edge \\(e_{ij}\\) between them.
 - **Bootstraping.** A trained model on the labeled set can be used to produce additionnal training examples extracted from the unlabled set, the extracted examples can be based on some heuristic. Some examples of Bootstraping based SSL are *Self-training*, *Co-training* and *Multi-View Learning*.
 
+In addition to these main categories, their is also some SSL work on **entropy minimization**, where we force the model to make confident preditions by minimizing the entropy of the predicitons. And **pseudo-labels** where a trained model on the labeled data is utilized to label the unbaled portion and the new targets are used in a standard supervised setting.
+
 In this post, we will focus more on consistency regularization based approches, given that they are the most commonly used methods in deep learning, and we will present a brief introduction to the other methods, 
 
 ## Assumptions:
 
-But when can we apply SSL algorithms? SSL algorithms only work under some condistion, and follow some assumptions about the structure of nature of the data that need to hold. Without such assumptions, it would not be possible to generalize from a finite training set to a set of possibly infinitely many unseen test cases.
+But when can we apply SSL algorithms? SSL algorithms only work under some conditions, and follow some assumptions about the structure of the data that need to hold. Without such assumptions, it would not be possible to generalize from a finite training set to a set of possibly infinitely many unseen test cases.
 
 The main assumptions in SSL are:
 * **The Smoothness Assumption**: *« If two points \\(x_1\\), \\(x_2\\) in a high-density regionare close, then so should be the corresponding outputs \\(y_1\\), \\(y_2\\) »*. Meaning that if two inputs are of the same class and belong to the same cluster, which is a high desity region of the input space, the their correponding outputs need to be close. And the inverse hold true (if the two points are separated by a low-density region, the outputs must distant). This assumption can be quite helpful in a classification task, but not so much for regression.
 * **The Cluster Assumption**: *« If points are in the same cluster, they are likely to be of the same class. »* In this case, we suppose that input data points form clusters, and each cluster correponds to one of the output classes. And  decision boudary must lie in low density region for get the correct classification. This assumption is a special case of the smoothness assumption. With this assumption, we can restrict our model to have consistent prediction on the unblaled data over some small perturbations.
-* **The Manifold Assumption**: *« The (high-dimensional) data lie (roughly) on a low-dimensional manifold. »* With high dimentionnal space, where the volume grow exponenetially with the number of dimsions, it can quite hard to estimate the true data distribution for generative tasks, and the distances are similar regardless of the calss type, make a discriminative quite chalenging. However, if our input data lies on the some lower manifold, we can try to find low dimensionnal representation using the unlabled data, and then use the labled data to solve the simplefied task.
+* **The Manifold Assumption**: *« The (high-dimensional) data lie (roughly) on a low-dimensional manifold. »* With high dimentionnal space, where the volume grow exponenetially with the number of dimsions, it can be quite hard to estimate the true data distribution for generative tasks. For discriminative tasks, the distances are similar regardless of the class type, make classification quite chalenging. However, if our input data lies on some lower dimensionnal manifold, we can try to find low dimensionnal representation using the unlabled data, and then use the labled data to solve the simplefied task.
+
+# Consistency Regularization
+
+A recent line of work in deep semi-supervised learning is utilizing unlabled data
+to enforce the trained model to be inline with the cluster assumption, i.e., the
+learned decision boundary must lie in low density regions. These methods are based
+on a simple concept, if a realistic perturbation was to be applied to an unlabeled
+example, the predictions should not change significantly. Given that under the
+cluster assumption, data points with distinct labels are sperated with low density regions,
+so the likelihood of one example to switch classes after a perturbation is small (see Figure 1).
+
+More formally, with consistency regularization, we are favoring the functions \\(f_\theta\\) that give consistent
+prediction for similar data points. So rather that minimizing the classification cost at the zero-dimensional data points
+of the inputs space. The regularized model minimizes the cost on a manifold around each data point, pushing the
+decision boundaries away from the labeled data points and smoothing the manifold on which the data
+resides ([Zhu, 2005](http://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf)).
+Given an unlaled data point \\(x_u \in \mathcal{D_u}\\) and its perturbed version \\(\hat{x}_u\\),
+the objective is to minimize the distance between the two outputs
+$$d(f_{\theta}(x_u), f_{\theta}(\hat{x}_u))$$. The popular distances measures are $$d$$
+mean squared error (MSE), Kullback-Leiber divergence (KL)
+and Jensen-Shannon divergence (JS) for two
+outputs $$y_u = f_{\theta}(x_u)$$, $$\hat{y}_u = f_{\theta}(\hat{x}_u)$$
+and $$m=\frac{1}{2}(y_u+\hat{y}_u)$$:
+
+$$\small d_{\mathrm{MSE}}(y_u, \hat{y}_u)=\frac{1}{N} \sum_{i}^{N}(y_u(i)-\hat{y}_u(i))^{2}$$
+
+$$\small d_{\mathrm{KL}}(y_u, \hat{y}_u)=\frac{1}{N} \sum_{i}^{N} y_u(i) \log \frac{y_u(i)}{\hat{y}_u(i)}$$
+
+$$\small d_{\mathrm{JS}}(y_u, \hat{y}_u)=\frac{1}{2}
+\mathbf{d}_{\mathrm{KL}}(y_u, m)+\frac{1}{2} \mathrm{d}_{\mathrm{KL}}(\hat{y}_u, m)$$
+
+Note that we can also enforce a consistency over two
+perturbed versions $$\hat{x}_{u_1}$$ and $$\hat{x}_{u_2}$$ of $$\hat{x}_u$$.
+
+
+
+
+
+
+
+
+
+
+### References
+
+[1] Chapelle et al. [Semi-supervised learning book](http://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf). IEEE Transactions on Neural Networks, 2009.
+
+[2] Xiaojin Jerry Zhu. [Semi-supervised learning literature survey](http://www.acad.bg/ebook/ml/MITPress- SemiSupervised Learning.pdf). Technical report, University of Wisconsin-Madison Department of Computer Sciences, 2005.
+
