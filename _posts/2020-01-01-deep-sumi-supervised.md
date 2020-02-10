@@ -106,11 +106,11 @@ decision boundaries away from the labeled data points and smoothing the manifold
 resides ([Zhu, 2005](http://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf)).
 Given an unlaled data point \\(x_u \in \mathcal{D_u}\\) and its perturbed version \\(\hat{x}_u\\),
 the objective is to minimize the distance between the two outputs
-$$d(f_{\theta}(x_u), f_{\theta}(\hat{x}_u))$$. The popular distances measures are $$d$$
+$$d(f_{\theta}(x_u), f_{\theta}(\hat{x}_u))$$. The popular distance measures $$d$$ are
 mean squared error (MSE), Kullback-Leiber divergence (KL)
-and Jensen-Shannon divergence (JS) for two
-outputs $$y_u = f_{\theta}(x_u)$$, $$\hat{y}_u = f_{\theta}(\hat{x}_u)$$
-and $$m=\frac{1}{2}(y_u+\hat{y}_u)$$:
+and Jensen-Shannon divergence (JS). For two
+outputs $$y_u = f_{\theta}(x_u)$$ and $$\hat{y}_u = f_{\theta}(\hat{x}_u)$$,
+and $$m=\frac{1}{2}(y_u+\hat{y}_u)$$, we can compute these measures as follows:
 
 $$\small d_{\mathrm{MSE}}(y_u, \hat{y}_u)=\frac{1}{N} \sum_{i}^{N}(y_u(i)-\hat{y}_u(i))^{2}$$
 
@@ -119,17 +119,50 @@ $$\small d_{\mathrm{KL}}(y_u, \hat{y}_u)=\frac{1}{N} \sum_{i}^{N} y_u(i) \log \f
 $$\small d_{\mathrm{JS}}(y_u, \hat{y}_u)=\frac{1}{2}
 \mathbf{d}_{\mathrm{KL}}(y_u, m)+\frac{1}{2} \mathrm{d}_{\mathrm{KL}}(\hat{y}_u, m)$$
 
-Note that we can also enforce a consistency over two
-perturbed versions $$\hat{x}_{u_1}$$ and $$\hat{x}_{u_2}$$ of $$\hat{x}_u$$.
+Note that we can also enforce a consistency over two perturbed versions of $$x_u$$,
+$$\hat{x}_{u_1}$$ and $$\hat{x}_{u_2}$$. Now let's go through the popular consistency regularization methods
+in deep learning.$$
 
 
 
+# Ladder Networks
+With the objectif to take any well performing feed-forward network on supervised data and augment it with
+addtionnal branches to be able to utilize additionnal unlabled data.
+[Rasmus et al](https://arxiv.org/abs/1507.02672)
+to do this. As illustrated in Figure 2, the network consists of two encoders, a corruped and clean one, and a decoder.
+At each training iteration, and input $$x$$ is passed throught both encoder. In the corruped encoder, 
+a gaussian noise is injected at each layers after batch normalization. Producing two outputs, a clean prediction
+$$y$$ and a prediction based on corruped activations $$\tilde{y}$$. The output $$\tilde{y}$$ is then fed into
+the decoder to reconstruct the uncorrupted input hidden activations.
+The unsupervised training loss $$\mathcal{L}_u$$
+is then computed as the MSE between the activations of the clean encoder $$\mathbf{z}$$
+and the reconstructed activations $$\hat{\mathbf{z}}$$ (ie., after batch normalization)
+in the decoder using the corrupted output $$\tilde{y}$$, this is computed over all layers,
+from the input to the last layer $$L$$, with a weighting $$\lambda_{l}$$ for each layer's contribution loss:
 
+$$\mathcal{L}_u =\sum_{l=0}^{L} \lambda_{l}\|\mathbf{z}^{(l)}-\hat{\mathbf{z}}^{(l)}\|^{2}$$
 
+If the input $$x$$ in a labeled data point $$x \in \mathcal{D_l}$$. Then we can add a supervised loss term
+to $$\mathcal{L}_u$$ to obtain the final loss. Note the supervised cross-entropy
+loss is computed between the corrputed output $$\tilde{y}$$ and the targets $$t$$:
 
+$$\mathcal{L} = \mathcal{L}_u  + \mathcal{L}_s = \mathcal{L}_u + \log P(\tilde{\mathbf{y}}|t)$$
 
+<figure style="width: 75%" class="align-center">
+  <img src="{{ 'images/SSL/ladder_network.png' | absolute_url }}" alt="">
+  <figcaption>Fig. 1. An illustration of the feed-forward pass of Ladder Networks.
+  (Image source: <a href="https://arxiv.org/abs/1507.02672">Rasmus et al</a>)
+  </figcaption>
+</figure>
 
-
+The method can be easily addaped to convolutional neural networks (CNNs)
+by replacing the fully-connected layers with
+convolutionnal and deconvolutionnal layers for semi-supervised computer vision tasks.
+However, the ladder network are quite heavy computationnaly, approximately tripling
+the computation needed for one training iteration. To mitigate this,
+the authors **propose** a variant of ladder networks called **Γ-Model** where
+$$\lambda_{l}=0$$ when $$l<L$$. In this case the decoder is ommitted and the unsupervised loss
+is computed as MSE between the two outputs $$y$$ and $$\tilde{y}$$.
 
 ### References
 
@@ -137,3 +170,4 @@ perturbed versions $$\hat{x}_{u_1}$$ and $$\hat{x}_{u_2}$$ of $$\hat{x}_u$$.
 
 [2] Xiaojin Jerry Zhu. [Semi-supervised learning literature survey](http://www.acad.bg/ebook/ml/MITPress- SemiSupervised Learning.pdf). Technical report, University of Wisconsin-Madison Department of Computer Sciences, 2005.
 
+[1] Rasmus et al. [Semi-supervised learning with ladder networks](http://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf). Advances in neural information processing systems, 2015.
