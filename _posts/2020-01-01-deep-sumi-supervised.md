@@ -6,7 +6,7 @@ excerpt: "Given the large amounts of training data required to train deep nets,
           Semi-supservised learning (SSL) is possible solutions to such hurdles. In this blog post
           we present some of the new advance in SSL in the age of Deep Learning."
 date: 2020-01-17 18:00:00
-published: true
+published: false
 tags: 
   - long-read
   - deep-learning
