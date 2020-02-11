@@ -6,7 +6,7 @@ excerpt: "Given the large amounts of training data required to train deep nets,
           Semi-supservised learning (SSL) is possible solutions to such hurdles. In this blog post
           we present some of the new advance in SSL in the age of Deep Learning."
 date: 2020-01-17 18:00:00
-published: false
+published: true
 tags: 
   - long-read
   - deep-learning
@@ -121,15 +121,17 @@ $$\small d_{\mathrm{JS}}(y_u, \hat{y}_u)=\frac{1}{2}
 
 Note that we can also enforce a consistency over two perturbed versions of $$x_u$$,
 $$\hat{x}_{u_1}$$ and $$\hat{x}_{u_2}$$. Now let's go through the popular consistency regularization methods
-in deep learning.$$
+in deep learning.
 
-
+$$
 
 # Ladder Networks
 With the objectif to take any well performing feed-forward network on supervised data and augment it with
 addtionnal branches to be able to utilize additionnal unlabled data.
-[Rasmus et al](https://arxiv.org/abs/1507.02672)
-to do this. As illustrated in Figure 2, the network consists of two encoders, a corruped and clean one, and a decoder.
+[Rasmus et al](https://arxiv.org/abs/1507.02672) proposed to use Ladder
+Networks ([Harri Valpola](https://arxiv.org/abs/1411.7783)) consisting of an additionnal
+encoder and decoder for SSL.
+As illustrated in Figure 2, the network consists of two encoders, a corruped and clean one, and a decoder.
 At each training iteration, and input $$x$$ is passed throught both encoder. In the corruped encoder, 
 a gaussian noise is injected at each layers after batch normalization. Producing two outputs, a clean prediction
 $$y$$ and a prediction based on corruped activations $$\tilde{y}$$. The output $$\tilde{y}$$ is then fed into
@@ -150,7 +152,8 @@ $$\mathcal{L} = \mathcal{L}_u  + \mathcal{L}_s = \mathcal{L}_u + \log P(\tilde{\
 
 <figure style="width: 75%" class="align-center">
   <img src="{{ 'images/SSL/ladder_network.png' | absolute_url }}" alt="">
-  <figcaption>Fig. 1. An illustration of the feed-forward pass of Ladder Networks.
+  <figcaption>Fig. 2. An illustration of one forward pass of Ladder Networks, C refers
+  to the MSE loss between the activations at various layers.
   (Image source: <a href="https://arxiv.org/abs/1507.02672">Rasmus et al</a>)
   </figcaption>
 </figure>
@@ -160,9 +163,34 @@ by replacing the fully-connected layers with
 convolutionnal and deconvolutionnal layers for semi-supervised computer vision tasks.
 However, the ladder network are quite heavy computationnaly, approximately tripling
 the computation needed for one training iteration. To mitigate this,
-the authors **propose** a variant of ladder networks called **Γ-Model** where
+the authors propose a variant of ladder networks called **Γ-Model** where
 $$\lambda_{l}=0$$ when $$l<L$$. In this case the decoder is ommitted and the unsupervised loss
-is computed as MSE between the two outputs $$y$$ and $$\tilde{y}$$.
+is computed as the MSE between the two outputs $$y$$ and $$\tilde{y}$$.
+
+$$
+
+## Π-model 
+The **Π-model** ([Laine et al.](https://arxiv.org/abs/1610.02242)) is a simplification of the **Γ-Model** of Ladded Networks,
+where the denoising encoder is removed and the same network is used to get the prediction for both corrupted and uncorrupted inputs.
+Specifically, **Π-model** takes advantage of the stochastic nature of the prediction function $$f_ \theta$$ in neural network due to common regularization techniques such as data augmentation and dropout that typically don't alter the model's predictions.
+For any given input $$x$$, the objective is to reduce the distances between two prediction, both obtained using perturbed versions
+of $$x$$. Concretly, as illustrated in Figure 3, we would like to minimize $$d(\hat{z}_1, \hat{z}_2)$$. Given the stochasitc nature of the predictions function (ie., using dropout as noise source), the two outputs $$\hat{z}_{1} = f_\theta(x)$$ and $$\hat{z}_2 = f_\theta(x)$$
+will distinct given same input $$x$$. And the objective is to obtain consistent predictions for both of them. In case the input $$x$$ is a labled data point, we also compute the cross-entorpy supervised loss using the provided labels $y$ and the total loss will be:
+
+
+$$\mathcal{L} = w(t)\ d_{\mathrm{MSE}}(\hat{z}_1, \hat{z}_2) + y\log(z)$$
+
+With $$w(t)$$ as a weighting function, starting from 0 up to a fixed weight $$\lambda$$ (eg., 30) after a given number of epochs. This way, we avoiding using the untrained prediction function, giving random prediction at the start of training, to extract a training signal from
+the unlabeled examples.
+
+<figure style="width: 75%" class="align-center">
+  <img src="{{ 'images/SSL/pi_model.png' | absolute_url }}" alt="">
+  <figcaption>Fig. 3. Loss computation for <b>Π-model</b>, we compute the MSE between the two outputs, and if the inputs
+  is a labeled we add the supervised loss to the weighted unsupervised loss.
+  (Image source: <a href="https://arxiv.org/abs/1610.02242">Laine et al</a>)
+  </figcaption>
+</figure>
+
 
 ### References
 
@@ -170,4 +198,8 @@ is computed as MSE between the two outputs $$y$$ and $$\tilde{y}$$.
 
 [2] Xiaojin Jerry Zhu. [Semi-supervised learning literature survey](http://www.acad.bg/ebook/ml/MITPress- SemiSupervised Learning.pdf). Technical report, University of Wisconsin-Madison Department of Computer Sciences, 2005.
 
-[1] Rasmus et al. [Semi-supervised learning with ladder networks](http://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf). Advances in neural information processing systems, 2015.
+[3] Rasmus et al. [Semi-supervised learning with ladder networks](http://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf). Advances in neural information processing systems, 2015.
+
+[4] Samuli Laine, Timo Aila. [Temporal Ensembling for Semi-Supervised Learning](https://arxiv.org/abs/1610.02242). ICLR 2017.
+
+[5] Harri Valpola [From neural PCA to deep unsupervised learning](https://arxiv.org/abs/1411.7783). Advances in Independent Component Analysis and Learning Machines 2015.
