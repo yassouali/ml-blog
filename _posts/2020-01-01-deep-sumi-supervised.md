@@ -125,7 +125,7 @@ in deep learning.
 
 $$
 
-# Ladder Networks
+## Ladder Networks
 With the objectif to take any well performing feed-forward network on supervised data and augment it with
 addtionnal branches to be able to utilize additionnal unlabled data.
 [Rasmus et al](https://arxiv.org/abs/1507.02672) proposed to use Ladder
@@ -170,26 +170,26 @@ is computed as the MSE between the two outputs $$y$$ and $$\tilde{y}$$.
 $$
 
 ## Π-model 
-The **Π-model** ([Laine et al.](https://arxiv.org/abs/1610.02242)) is a simplification of the **Γ-Model** of Ladded Networks,
+The **Π-model** ([Laine et al](https://arxiv.org/abs/1610.02242)) is a simplification of the **Γ-Model** of Ladded Networks,
 where the denoising encoder is removed and the same network is used to get the prediction for both corrupted and uncorrupted inputs.
-Specifically, **Π-model** takes advantage of the stochastic nature of the prediction function $$f_ \theta$$ in neural network due to common regularization techniques such as data augmentation and dropout that typically don't alter the model's predictions.
-For any given input $$x$$, the objective is to reduce the distances between two prediction, both obtained using perturbed versions
-of $$x$$. Concretly, as illustrated in Figure 3, we would like to minimize $$d(\hat{z}_1, \hat{z}_2)$$. Given the stochasitc nature of the predictions function (ie., using dropout as noise source), the two outputs $$\hat{z}_{1} = f_\theta(x)$$ and $$\hat{z}_2 = f_\theta(x)$$
-will distinct given same input $$x$$. And the objective is to obtain consistent predictions for both of them. In case the input $$x$$ is a labled data point, we also compute the cross-entorpy supervised loss using the provided labels $y$ and the total loss will be:
-
+Specifically, **Π-model** takes advantage of the stochastic nature of the prediction function $$f_ \theta$$ in neural network due to common regularization techniques, such as data augmentation and dropout that typically don't alter the model's predictions.
+For any given input $$x$$, the objective is to reduce the distances between two predictions of $$f_ \theta$$ with $$x$$ as input in both forward passes.
+Concretly, as illustrated in Figure 3, we would like to minimize $$d(\hat{z}_1, \hat{z}_2)$$. Given the stochasitc nature of the predictions function (ie., using dropout as noise source), the two outputs $$\hat{z}_{1} = f_\theta(x)$$ and $$\hat{z}_2 = f_\theta(x)$$ will be distinct. And the objective is to obtain consistent predictions for both of them. In case the input $$x$$ is a labled data point, we also compute the cross-entorpy supervised loss using the provided labels $$y$$ and the total loss will be:
 
 $$\mathcal{L} = w(t)\ d_{\mathrm{MSE}}(\hat{z}_1, \hat{z}_2) + y\log(z)$$
 
-With $$w(t)$$ as a weighting function, starting from 0 up to a fixed weight $$\lambda$$ (eg., 30) after a given number of epochs. This way, we avoiding using the untrained prediction function, giving random prediction at the start of training, to extract a training signal from
+With $$w(t)$$ as a weighting function, starting from 0 up to a fixed weight $$\lambda$$ (eg., 30) after a given number of epochs (eg., 20% of training time). This way, we avoid using the untrained and random prediction function providing us with unstable predictions at the start of training to extract the training signal from
 the unlabeled examples.
 
-<figure style="width: 75%" class="align-center">
+<figure style="width: 100%" class="align-center">
   <img src="{{ 'images/SSL/pi_model.png' | absolute_url }}" alt="">
   <figcaption>Fig. 3. Loss computation for <b>Π-model</b>, we compute the MSE between the two outputs, and if the inputs
   is a labeled we add the supervised loss to the weighted unsupervised loss.
   (Image source: <a href="https://arxiv.org/abs/1610.02242">Laine et al</a>)
   </figcaption>
 </figure>
+
+
 
 
 ### References
