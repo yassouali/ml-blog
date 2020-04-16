@@ -1,10 +1,16 @@
 ## yassouali.github.io
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](#license)
+
+
 
 My personal page / blog, built using [jekyll](https://jekyllrb.com/) and hosted using [github pages](https://pages.github.com/).
 
+
+[![](images/banner.png)](https://yassouali.github.io/ml-blog/)
+
 If you would like to use this template, you can simply create a repo named `GHusername.github.io`, clone this repo and
-push it to the repo you've juste created, change the corresponding fields in `_config.yml` and 
-the logs and backgrounds in `images` and your website will be up and running.
+push it to the repo you've juste created, change the corresponding fields in `_config.yml`, you can also change the 
+the logos and backgrounds images in `images`, and then your website should will be up and running.
 If you wish, you can also change the HTML and css layouts that are 
 defined in `_layouts/`, `_includes/` and `_sass`.
 
