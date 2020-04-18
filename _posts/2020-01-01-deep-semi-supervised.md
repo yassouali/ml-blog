@@ -26,6 +26,34 @@ by developing novel methods and adopting existing one for a
 deep learning setting
 This post discusses SSL in a deep learning setting, and goes through some of SSL main methods.
 
+- [Semi-supervised Learning](#semi-supervised-learning)
+  - [What is Semi-supervised Learning?](#what-is-semi-supervised-learning)
+  - [Semi-supervised learning methods](#semi-supervised-learning-methods)
+  - [Main Assumptions in SSL](#main-assumptions-in-ssl)
+- [Consistency Regularization](#consistency-regularization)
+  - [Ladder Networks](#ladder-networks)
+  - [Π-model](#%ce%a0-model)
+  - [Temporal Ensembling](#temporal-ensembling)
+  - [Mean teachers](#mean-teachers)
+  - [Dual Students](#dual-students)
+  - [Virtual Adversarial Training](#virtual-adversarial-training)
+  - [Adversarial Dropout](#adversarial-dropout)
+  - [Interpolation Consistency Training](#interpolation-consistency-training)
+  - [Unsupervised Data Augmentation](#unsupervised-data-augmentation)
+- [Entropy Minimization](#entropy-minimization)
+- [Proxy-label Methods](#proxy-label-methods)
+  - [Self-training](#self-training)
+  - [Meta Pseudo Labels](#meta-pseudo-labels)
+  - [Multi-view training](#multi-view-training)
+    - [Co-training](#co-training)
+    - [Tri-Training](#tri-training)
+- [Holistic Methods](#holistic-methods)
+  - [MixMatch](#mixmatch)
+  - [ReMixMatch](#remixmatch)
+  - [FixMatch](#fixmatch)
+- [References](#references)
+
+
 # Semi-supervised Learning
 
 ## What is Semi-supervised Learning?
@@ -72,21 +100,28 @@ data to maximize the likelihood of the model. In this post, we are only interest
 There have been many SSL methods and approches that have introduced over the years, SSL algorithms can be broadly divided into the following categories:
 
 - **Consistency Regularization (Consistency Training).** Based on the assumption that if a realistic perturbation was applied to the unlabeled data points, the prediction should not change significantly. We can then train the model to have a consistent prediction on a given unlabeled example and its perturbed version.
+- **Proxy-label Methods.** These models leverage a trained model on the labeled set to produce additional training examples extracted from the unlabeled set, the extracted examples can be based on some heuristic. These approaches can also referred to as *self-teaching* or *bootstrapping* algorithms; 
+we follow [Ruder et al.](https://arxiv.org/abs/1804.09530) and refer to them as proxy-label method. Some examples of such methods are *Self-training*, *Co-training* and *Multi-View Learning*.
 - **Generative models.** Similar to the supervised setting, where the learned features on one task can be transferred to other down stream tasks. Generative models that are able to generate images from the data distribution \\(p(x)\\) must learn transferable features to a supervised task on \\(p(x \| y)\\) for a given task with targets \\(y\\).
-- **Graph Based Algorithms.** A labeled and unlabeled data points constitute the nodes of the graph, and the objective is to propagate the labels from the labeled nodes to the unlabeled ones. The similarity of two nodes \\(n_i\\) and \\(n_j\\) is reflected by how strong is the edge \\(e_{ij}\\) between them.
-- **Bootstraping.** A trained model on the labeled set can be used to produce additional training examples extracted from the unlabeled set, the extracted examples can be based on some heuristic. Some examples of Bootstraping based SSL are *Self-training*, *Co-training* and *Multi-View Learning*.
+- **Graph Based Methods.** A labeled and unlabeled data points constitute the nodes of the graph, and the objective is to propagate the labels from the labeled nodes to the unlabeled ones. The similarity of two nodes \\(n_i\\) and \\(n_j\\) is reflected by how strong is the edge \\(e_{ij}\\) between them.
 
-In addition to these main categories, their is also some SSL work on **entropy minimization**, where we force the model to make confident predictions by minimizing the entropy of the predictions. And **pseudo-labels** where a trained model on the labeled data is utilized to label the unlabeled portion and the new targets are used in a standard supervised setting.
+In addition to these main categories, their is also some SSL work on **entropy minimization**, where we force the model to make confident predictions by minimizing the entropy of the predictions. In addition to **pseudo-labeling**, where a trained model on the labeled data is utilized to label the unlabeled portion and the new targets are used in a standard supervised setting, which can be seen as a special case of self-training.
+Consistency training can also be considered as a Proxy-label method, with a subtle difference where instead of considering
+the predictions as ground-truths and compute the cross-entropy loss, we enforce a consistency of predictions by minimize
+a given distance between the outputs.
 
 In this post, we will focus more on consistency regularization based approaches, given that they are the most commonly used methods in deep learning, and we will present a brief introduction to the other methods, 
 
-## Assumptions:
+## Main Assumptions in SSL
 
 But when can we apply SSL algorithms? SSL algorithms only work under some conditions, and follow some assumptions about the structure of the data that need to hold. Without such assumptions, it would not be possible to generalize from a finite training set to a set of possibly infinitely many unseen test cases.
 
 The main assumptions in SSL are:
 * **The Smoothness Assumption**: *« If two points \\(x_1\\), \\(x_2\\) in a high-density regions close, then so should be the corresponding outputs \\(y_1\\), \\(y_2\\) »*. Meaning that if two inputs are of the same class and belong to the same cluster, which is a high density region of the input space, then their corresponding outputs need to be close. And the inverse hold true (if the two points are separated by a low-density region, the outputs must distant). This assumption can be quite helpful in a classification task, but not so much for regression.
 * **The Cluster Assumption**: *« If points are in the same cluster, they are likely to be of the same class. »* In this case, we suppose that input data points form clusters, and each cluster corresponds to one of the output classes. And  decision boundary must lie in low density region for get the correct classification. This assumption is a special case of the smoothness assumption. With this assumption, we can restrict our model to have consistent prediction on the unblaled data over some small perturbations.
+The cluster assumption can also be seed as the low-density separation assumption:*« the decision boundary should lie in the low-density regions. »* 
+The relation between the two assumptions is easy to see, if a given decision boundary lies in a high-density region, it will likely cut a cluster
+into two different classes, resulting in samples from different classes belonging to the same cluster, which is a violation of the cluster assumption.
 * **The Manifold Assumption**: *« The (high-dimensional) data lie (roughly) on a low-dimensional manifold. »* With high dimensional space, where the volume grow exponentially with the number of dimensions, it can be quite hard to estimate the true data distribution for generative tasks. For discriminative tasks, the distances are similar regardless of the class type, make classification quite challenging. However, if our input data lies on some lower dimensional manifold, we can try to find low dimensional representation using the unlabeled data, and then use the labeled data to solve the simplified task.
 
 # Consistency Regularization
@@ -123,7 +158,6 @@ Note that we can also enforce a consistency over two perturbed versions of $$x_u
 $$\hat{x}_{u_1}$$ and $$\hat{x}_{u_2}$$. Now let's go through the popular consistency regularization methods
 in deep learning.
 
-$$
 
 ## Ladder Networks
 With the objective to take any well performing feed-forward network on supervised data and augment it with
@@ -167,7 +201,6 @@ the authors propose a variant of ladder networks called **Γ-Model** where
 $$\lambda_{l}=0$$ when $$l<L$$. In this case the decoder is omitted and the unsupervised loss
 is computed as the MSE between the two outputs $$y$$ and $$\tilde{y}$$.
 
-$$
 
 ## Π-model 
 
@@ -245,12 +278,9 @@ These targets may very well be misclassified, and if the weight of the unsupervi
 the model is prevented from learning new information, and keeps predicting the same targets, resulting in a form of confirmation bias. To solve
 this, the quality of targets must be improved.
 
-The quality of targets can be improved by either: (1) carefully choosing the perturbations instead of x²x²simply injecting
-additive or multiplicative noise, or (2) carefully choosing the teacher model responsible for the target, instead of using a replicate of the 
-student model.
-
-<!-- [Antti Tarvainen et al](https://arxiv.org/abs/1703.01780) investigate the second approach and propose
-to form a better teacher model from the student model without additional training. -->
+The quality of targets can be improved by either: (1) carefully choosing the perturbations instead of simply injecting
+additive or multiplicative noise, or (2) carefully choosing the teacher model responsible for generating the targets, 
+instead of using a replica of the student model.
 
 Π-model and its improved version with Temporal Ensembling provides a better and more stable teacher model by 
 maintaining an EMA of the predictions of each example, which is formed by an ensemble of the model’s current version and those earlier
@@ -264,7 +294,7 @@ method Mean Teacher, illustrated in the Figure 5.
   <img src="{{ 'images/SSL/mean_teacher.png' | absolute_url }}" alt="">
   <figcaption>Fig. 5. The Mean Teacher method. The teacher model, which is an EMA of the student model, is responsible
   of generating the targets for consistency training. The student model is then trained to minimize the supervised loss
-  over labeled examples, and the consistency loss over unlabled examples. At each training iteration, both
+  over labeled examples, and the consistency loss over unlabeled examples. At each training iteration, both
   models are evaluated with an injected noise (η, η'), and the weights of the teacher model are updated using the current student model
   to incorporate the learned information at a faster pace.
   (Image source: <a href="https://arxiv.org/abs/1703.01780">Antti Tarvainen al</a>)
@@ -284,57 +314,513 @@ for the unsupervised loss for a given input $$x_i$$:
 
 $$\mathcal{L} = w(t)\ d_{\mathrm{MSE}}(f_{\theta}(x_i), f_{\theta^{\prime}}(x_i)) + y_i\log(f_{\theta}(x_i))$$
 
+
+
+## Dual Students
+
+One of the main drawbacks of using Mean Teacher, where the teacher's weights are EMA of the student's weights, 
+is that given a large number of training iterations, the weights of the teacher model will converge to that 
+of the student model, and any biased and unstable predictions will be carried over to the student.
+
+To solve this, [Zhanghan Ke et al.](https://arxiv.org/abs/1909.01804) propose a dual students step-up, where
+two student models with different initialization are simultaneously trained, and at a given iteration, one of them
+provides the targets for the other. To choose which one, we check for the most stable prediction that satisfies
+the following stability conditions:
+* The predictions using two input versions, a clean $$x_i$$ and a perturbed version $$\tilde{x}_i$$ give
+the same results: $$f(x_i) = f(\tilde{x}_i)$$.
+* Both predictions are confident, ie, are far from the decision boundary. This
+can be tested by seeing if $$f(x_i)$$ (resp. $$f(\tilde{x_i})$$) is greater than a confidence threshold $$\epsilon$$, such as 0.1.
+
+Given two student models,
+$$f_{\theta_1}$$ and $$f_{\theta_2}$$, an unlabeled input $$x_i$$ and its perturbed version $$\tilde{x}_i$$. We
+compute the four predictions $$f_{\theta_1}(x_i), f_{\theta_1}(\tilde{x}_i), f_{\theta_2}(x_i), f_{\theta_2}(\tilde{x}_i)$$.
+In addition to training each model to minimize both the supervised: $$\mathcal{L}_s = y_i\log(f_{\theta_j}(x_i)$$ and unsupervised loss:
+$$\mathcal{L}_u = d_{\mathrm{MSE}}(f_{\theta_j}(x_i), f_{\theta_j}(\tilde{x}_i))$$.
+We also force one of the students to have similar prediction
+to its counterpart. To chose which one to update its weights, 
+we check for the stability constraint for both models, if the predictions one of them is stable, we update its weights.
+If both are stable, we update the model with the smallest variation
+$$\mathcal{E}^{j} =\left\|f_{j}(x_i)-f_{j}(\tilde{x}_i)\right\|^{2}$$.
+
+
+<figure style="width: 90%" class="align-center">
+  <img src="{{ 'images/SSL/dualstudents.png' | absolute_url }}" alt="">
+  <figcaption>Fig. 6. Examples of the perturbed inputs for different values of the scaling hyperparameter Ɛ.
+   (Image source: <a href="https://arxiv.org/abs/1704.03976">Takeru Miyato et al</a>)
+  </figcaption>
+</figure>
+
+
+In the end, as depicted in Figure 6, the stable model is trained with the following loss:
+
+$$\mathcal{L} = \mathcal{L}_s + \lambda_{1} \mathcal{L}_u  + \lambda_{2}  d_{\mathrm{MSE}}(f_{\theta_j}(x_i), f_{\theta_k}(x_i))$$
+
+while the unstable model is trained using traditional loss for consistency training: $$\lambda_{1} \mathcal{L}_u  + \mathcal{L}_s$$.
+
+
+
+
 ## Virtual Adversarial Training
 
+The previous approaches focused on applying random perturbations to each input in order to generate artificial input points,
+encouraging the model to assign similar outputs to the unlabeled data points and their perturbed versions, this way
+we push for a smoother output distribution and as a result, the generalization performance of the model can be improved. Such random
+perturbations. Additionally, such
+random noise and random data augmentation often leaves the predictor particularly vulnerable to a small perturbation in a specific direction,
+that is, the adversarial direction, which is the direction in the input space in which the label probability $$p(y|x)$$ of the model is most sensitive.
+
+To solve this, and inspired by adversarial training ([Ian Goodfellow et al.](https://arxiv.org/abs/1412.6572)) that trains the model to assign to each input data a label that is similar to the labels to be assigned to its neighbors in the adversarial direction.
+[Takeru Miyato et al.](https://arxiv.org/abs/1704.03976) propose Virtual Adversarial Training (VAT), a regularization technique 
+that enhances the model's robustness around each input data point against random and local perturbations, the term "virtual" comes from the fact 
+that the adversarial perturbation is approximated without label information and is hence applicable to semi-supervised learning
+to smooth the output distribution.
+
+Concretely, VAT trains the output distribution to be identically smooth around each data
+point by selectively smoothing the model in its most adversarial direction.
+For a given data point $$x_i$$, we would like to compute the adversarial perturbation $$r_{adv}$$ that will alter its predictions the most.
+We start by sampling a Gaussian noise $$r$$ of the same dimensions as the input $$x_i$$, we then compute its gradients $$grad_r$$
+with respect the loss between the two predictions, with and without the injections of the noise $$r$$
+(i.e., KL-divergence is used as a distance measure $$d(.,.)$$).
+$$r_{adv}$$ can then be obtained by normalizing and scaling $$grad_r$$ by a hyperparameter $$\epsilon$$. This can be written as follows:
+
+$$1) \ \ r \sim \mathcal{N}(0, \frac{\xi}{\sqrt{\operatorname{dim}(x_i)}} I)$$
+
+$$2) \ \ grad_{r}=\nabla_{r} d_{\mathrm{KL}}(f_{\theta}(x_i), f_{\theta}(x_i+r))$$
+
+$$3) \ \ r_{adv}=\epsilon \frac{grad_{r}}{\|grad_{r}\|}$$ 
+
+Note that the computation above is a single iteration of the approximation of $$r_{adv}$$, for a more accurate 
+approximation, we consider $$r_{adv} = r$$ and recompute $$r_{adv}$$ following the last two steps.
+But in general, given how computationally expensive this computation, requiring an additional forward and backward passes,
+we only apply a single power iteration for computing the adversarial perturbation.
+
+With the optimal perturbation $$r_{adv}$$, we can then compute the unsupervised loss as the MSE
+between the two predictions of the model, with and without the injection of $$r_{adv}$$:
+
+$$\mathcal{L}_u = w(t)\ d_{\mathrm{MSE}}(f_{\theta}(x_i), f_{\theta}(x_i + r_{adv}))$$
+
+For even more stable training, we can use a mean teacher to generate stable targets
+by replacing $$f_{\theta}(x_i)$$ with $$f_{\theta^{\prime}}(x_i)$$, where $$f_{\theta^{\prime}}$$
+is an EMA teacher model of the student $$f_{\theta}$$.
+
+<figure style="width: 75%" class="align-center">
+  <img src="{{ 'images/SSL/vat.png' | absolute_url }}" alt="">
+  <figcaption>Fig. 6. Examples of the perturbed inputs for different values of the scaling hyperparameter Ɛ.
+   (Image source: <a href="https://arxiv.org/abs/1704.03976">Takeru Miyato et al</a>)
+  </figcaption>
+</figure>
 
 
+## Adversarial Dropout
+Instead of using an additive adversarial noise as VAT, [Sungrae Park et al](https://arxiv.org/abs/1707.03631)
+propose adversarial dropout (AdD), in which dropout masks are adversarially optimized to alter the model's predictions.
+With this type of perturbations, we induce the sparse structure of neural network while the other forms of additive noise does not
+make changes in the structure of the neural network directly.
+
+The first step is to find an dropout conditions that is most sensitive to the model's predictions. In SSL setting,
+where we do not have access to the true labels, we use the models predictions on the unlabeled data points to approximate
+the adversarial dropout mast $$\epsilon^{adv}$$, which is subject to the boundary condition:
+$$\|\epsilon^{adv}-\epsilon\|_{2} \leq \delta H$$ with $$H$$
+as the dropout layer dimension and a hyperparameter $$\delta$$,
+which restricts adversarial dropout mask to be infinitesimally different from the random dropout mask $$\epsilon$$.
+Without this constraint, the network with adversarial dropout
+may become a neural network layer with-out connections. By restricting the adversarial dropout with the random dropout,
+we prevent finding such irrational layer, which does not support the back propagation. 
+
+Similar to VAT, we start from a random dropout mask, we compute a KL-divergence loss
+between the outputs with and without dropout, and given the gradients of the loss with respect to the activations
+before the dropout layer, we update the random dropout mask in an adversarial manner. 
+The prediction function $$f_{\theta}$$ is divided into two parts, $$f_{\theta_1}$$
+and $$f_{\theta_2}$$, where $$f_{\theta}(x_i, \epsilon)=f_{\theta_{2}}(f_{\theta_{1}}(x_i) \odot \epsilon)$$, 
+we start by computing an approximation of the jacobian matrix as follows:
+
+$$J(x_i, \epsilon) \approx f_{\theta_{1}}(x_i)\odot
+\nabla_{f_{\theta_{1}}(x_i)} d_{\mathrm{KL}}(f_{\theta}(x_i),
+f_{\theta}(x_i, \epsilon))$$
+
+Using $$J(x_i, \epsilon)$$, we can then update the random dropout mask $$\epsilon$$
+to obtain $$\epsilon^{adv}$$, so that if $$\epsilon = 0$$ and $$J(x_i, \epsilon) > 0$$
+or $$\epsilon = 1$$ and $$J(x_i, \epsilon) < 0$$ at a given position, we inverse the
+value of $$\epsilon$$ at that location. Resulting in $$\epsilon^{adv}$$, which can then
+be used to compute the unsupervised loss:
+
+$$\mathcal{L}_u = w(t)\ d_{\mathrm{MSE}}(f_{\theta}(x_i), f_{\theta}(x_i, \epsilon^{adv}))$$
+
+## Interpolation Consistency Training
+
+As discussed earlier, the random perturbations are inefficient in high dimensions, given that only a limited subset of the
+input perturbations are capable of pushing the decision boundary into low-density regions. VAT 
+and AdD find the adversarial perturbations that will maximize the change in the prediction of the model, which
+involve multiple froward and backward passes to compute these perturbations. This additional computation can
+be restrictive in many cases and makes such methods less appealing.
+As an alternative, [Vikas Verma et al](https://arxiv.org/abs/1903.03825) propose Interpolation Consistency Training (ICT) as an 
+efficient consistency regularization technique for SSL.
+
+Given a mixup operation
+$$\operatorname{Mix}_{\lambda}(a, b)=\lambda \cdot a+(1-\lambda) \cdot b$$ that outputs an interpolation
+between the two inputs with a weight $$\lambda \sim \operatorname{Beta}(\alpha, \alpha)$$ for $$\alpha \in(0, \infty)$$.
+As shown in Figure 7, ICT train a prediction function $$f_{\theta}$$ to provide consistent predictions at different interpolations 
+of unlabeled data points $$u_i$$ and $$u_j$$, where the targets are generated using a teacher model $$f_{\theta^{\prime}}$$
+which is an EMA of $$f_{\theta}$$:
+
+$$f_{\theta}(\operatorname{Mix}_{\lambda}(u_{j}, u_{k})) \approx
+\operatorname{Mix}_{\lambda}(f_{\theta^{\prime}}(u_{j}), f_{\theta^{\prime}}(u_{k}))$$
+
+<figure style="width: 90%" class="align-center">
+  <img src="{{ 'images/SSL/ICT.png' | absolute_url }}" alt="">
+  <figcaption>Fig. 7. ICT where a student model is trained to have consistent predictions at different interpolations 
+  of unlabeled data points, where a teacher is used to generated the targets before the mixup operation.
+   (Image source: <a href="https://arxiv.org/abs/1903.03825">Vikas Verma et al</a>)
+  </figcaption>
+</figure>
+
+The unsupervised objective is to have similar values between the prediction of the student model given a mixed
+input for two unlabeled data points, and the mixed outputs of the teacher model.
+
+$$\mathcal{L}_u = w(t)\ d_{\mathrm{MSE}}(f_{\theta}(\operatorname{Mix}_{\lambda}(u_{j}, u_{k})) -
+\operatorname{Mix}_{\lambda}(f_{\theta^{\prime}}(u_{j}), f_{\theta^{\prime}}(u_{k}))$$
+
+The benefit of ICT compared to random perturbation can be analysed by considering the mixup operation
+as a perturbation applied to a given unlabeled example: $$u_{j}+\delta=\operatorname{Mix}_{\lambda}(u_{j}, u_{k})$$,
+for a large number of classes and a with a similar distribution of examples per class, it is likely that the pair 
+of point $$\left(u_{j}, u_{k}\right)$$ lie in different cluster and belong to different classes. If one of these two data points
+lies in low density region, applying an interpolation toward $$u_{k}$$ points to a low density region, which is a good
+direction to move the decision boundary toward.
+
+## Unsupervised Data Augmentation
+
+Unsupervised Data Augmentation ([Qizhe Xie et al.](https://arxiv.org/abs/1904.12848)) proposes to use 
+advanced data augmentation methods, such as [AutoAugment](https://arxiv.org/abs/1805.09501),
+[RandAugment](https://arxiv.org/abs/1909.13719) and [Back Translation](https://arxiv.org/abs/1808.09381) as perturbations 
+for consistency training based SSL.
+Similar to supervised learning, advanced data augmentation methods can also provide extra advantages over simple augmentation and random noise 
+for consistency training, given that
+(1) it generates realistic augmented examples, making it safe to encourage the consistency between predictions
+on the original and augmented examples. (2) it can generate a diverge set of examples improving the sample efficiency and
+(3) it is capable of providing the missing inductive biases for different tasks.
+
+Motivated by these points, [Qizhe Xie et al.](https://arxiv.org/abs/1904.12848) propose to apply the following
+augmentations to generate transformed versions of the unlabeled inputs:
+* RandAugment for Image Classification: consists of uniformly sampling from the same set of possible
+augmentation transformations in PIL, without requiring an labeled data to search for optimal polices
+* Back-translation for Text Classification: consists of translating an existing example in language A 
+into another language B, and then translating it back into A to obtain an augmented example.
+
+<figure style="width: 90%" class="align-center">
+  <img src="{{ 'images/SSL/uda.png' | absolute_url }}" alt="">
+  <figcaption>Fig. 8. The training procedure in UDA.
+   (Image source: <a href="https://arxiv.org/abs/1904.12848">Qizhe Xie et al</a>)
+  </figcaption>
+</figure>
+
+After defining the augmentation to be applied during training, the training procedure show in Figure 8 is quite straight forward,
+the objective to have the correct prediction over the labeled set, and a consistency of prediction 
+on the original and augmented examples from the unlabeled set.
+
+# Entropy Minimization
+
+In the previous section, in a setting where the cluster assumption is maintained. We enforce a consistency of predictions
+to push the decision boundary of into low-density regions, in order to avoid classifying
+samples from the same cluster with distinct classes, which is a violation of the cluster assumption.
+Another way to enforce this is to encourage the network to make confident (low-entropy) predictions on
+unlabeled data regardless of the predicted class, discouraging the decision boundary from passing near data points
+where it would otherwise be forced to produce low-confidence predictions.
+This is done by adding a loss term which minimizes the entropy of the prediction function $$f_\theta(x)$$,
+e.g. for a categorical output space with $$K$$ possible classes, the entropy minimization term 
+([Yves Grandvalet et al.](http://papers.nips.cc/paper/740-semi-supervised-learning-by-entropy-minimization.pdf)) is:
+
+$$-\sum_{k=1}^{K} f_{\theta}(x)_{k} \log f_{\theta}(x)_{k}$$
+
+However, with high capacity models such as neural networks.
+The model can quickly overfit to low confident data points by simply outputting large logits, resulting in a model
+with very confident with each one of its predictions.
+On its own entropy minimization doesn't produce competitive results compared to other SSL methods, but can produce state-of-the-art results when combined with other SSL approaches.
 
 
+# Proxy-label Methods
+Proxy label methods ([Ruder et al](https://arxiv.org/abs/1804.09530)) are the class of SSL algorithms
+that produce proxy labels on unlabelled data, using the prediction
+function itself or some variant of it without any supervision. These proxy labels
+are then used as targets together with the labelled data, providing some additional training information
+even if the produced labels ar often noisy or weak and do not reflect the ground truth. Which can be divided mainly
+into two groups: self-training, where the proxy labels are produced by the model itself; and multi-view learning,
+where the proxy labels are produced by models train on different views of the data.
+
+## Self-training
+In self-training or bootstrapping, the small amount of labeled data $$\mathcal{D}_l$$ is first used to train a prediction function
+$$f_{\theta}$$. The train model is then used to assign pseudo-labels to the unlabeled data points in $$\mathcal{D}_u$$.
+Given an output $$f_{\theta}(x_i)$$ for an unlabeled data point $$x_i$$ in the form of a probability distribution
+over the classes, the pair $$(x_i, \text{argmax}f_{\theta}(x_i))$$ is added to the labeled set if the probability assigned to
+its most likely class is higher than a predetermined threshold $$\tau$$. The process of training the model using
+the augmentation labeled set and set using it to label $$\mathcal{D}_u$$ is repeated until the model is incapable
+of producing confident predictions.
+
+**Pseudo-labeling** can also be seen as a special case of self-training, differing
+only in the heuristics used to decide which pseudo-labels to retain, such as using the relative confidence
+instead of the absolute confidence by selecting the top n unlabeled examples predicted with the highest
+confidence after every epoch to be added to the labeled training dataset $$\mathcal{D}_l$$.
+
+The main downside of such methods is that the model is unable to correct its own mistakes
+and any biased and wrong classification can be quickly amplified resulting in confident but erroneous proxy labels on the
+unlabeled data points.
+
+## Meta Pseudo Labels
+Given how important the heuristics used
+to generate the proxy labels, where a proper method could lead to a sizable gain.
+[Hieu Pham et al](https://arxiv.org/abs/2003.10580) propose to use the student-teacher setting, where the teacher
+model is responsible for producing the proxy labels based on an efficient meta-learning algorithm called Meta Pseudo Labels (MPL),
+which encourages the teacher to adjust the target distributions 
+of training examples in the manner that improves the learning of the student model. The teacher is updated by policy gradients computed 
+by evaluating the student model on a held-out validation set.
+
+A given training step of MPL consists of two phases (Figure 10):
+* **Phase 1:** The Student Learns from the Teacher. In this phase, given a single input example $$x_i$$, the teacher $$f_{\theta^{\prime}}$$
+produces a target class-distribution to train the student $$f_{\theta}$$.  We note that the input
+The pair $$(x, f_{\theta^{\prime}}(x))$$ is then shown to the student to update its parameters by back-propagating from the cross-entropy loss.
+* **Phase 2:** The Teacher Learns from the Student’s Validation Loss. After the student updates its parameters as in first step,
+its new parameter $$\theta(t+1)$$
+is evaluated on an example $$(x_{val},y_{val})$$ from the held-out validation dataset using the cross-entropy loss. Since  the validation loss
+depends on $$\theta^{\prime}$$ via the first step, this validation cross-entropy loss is also a function of the teacher's weights $$\theta^{\prime}$$.
+This dependency allows us to compute the gradients of the validation loss with respect to the teacher's weights, and then update $$\theta^{\prime}$$
+to minimize the validation loss using policy gradients.
+
+<figure style="width: 75%" class="align-center">
+  <img src="{{ 'images/SSL/MPL.png' | absolute_url }}" alt="">
+  <figcaption>Fig. 10. The MPL training procedure.
+   (Image source: <a href="https://arxiv.org/abs/2003.10580">Hieu Pham et al</a>)
+  </figcaption>
+</figure>
+
+While the student's performance allows the teacher to adjust and adapt to the student's learning state, this signal alone
+is not sufficient to train the teacher. Since when the teacher has observed enough evidence to produce meaningful target
+distributions to teach the student, the student might have already entered a bad region of parameters. To overcome this, the teacher is 
+also trained using the a pair of labeled data points from the held-out validation set.
+
+## Multi-view training 
+
+Multi-view training ([Jing Zhao et al](https://www.sciencedirect.com/science/article/abs/pii/S1566253516302032))
+utilizes multi-view data that are very common in real world applications, where 
+different views can be collected by different measuring methods (e.g. color information and texture information for images)
+or by creating limited views of the original data. In such a setting, MVL aims to learn a distinct prediction function $$f_{\theta_i}$$
+to model a given view $$v_{i}(x)$$ of a data point $$x_i$$ and jointly optimize all the functions to improve the generalization performance.
+Ideally, the possible views complement each other so that the produced models can collaborate in improving each other's performance.
+
+### Co-training
+
+Co-training ([Avrim Blum et al.](https://www.cs.cmu.edu/~avrim/Papers/cotrain.pdf)) requires that each data point $$x_i$$ can be represented using two conditionally independent views $$v_1(x)$$ and $$v_2(x)$$ and that each view is sufficient to train a good model.
+
+After training two prediction functions $$f_{\theta_1}$$ and $$f_{\theta_2}$$ on a specific view on the labeled set $$\mathcal{D}_l$$.
+We start the proxy labeling procedure, where, at each iteration, an unlabeled data point is added to the training
+set of the model $$f_{\theta_i}$$ if the other model $$f_{\theta_j}$$ outputs a confident prediction with a probability higher
+than a threshold $$\tau$$. This way, one of the models provides newly labeled examples where the other model in uncertain.
+The two views $$v_1(x)$$ and $$v_2(x)$$ can also be generated using consistency training methods detailed in the previous section,
+for example [Siyuan Qiao et al.](https://arxiv.org/abs/1803.05984) use adversarial perturbations to produce new views for deep co-training
+for image classification, where the models are encouraged to have the same predictions on $$\mathcal{D}_l$$ but make different 
+errors when they are exposed to adversarial attacks.
+
+**Democratic Co-training**, ([Yan Zhou et al.](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.76.3152&rep=rep1&type=pdf)),
+an extension of Co-training, consists of replacing the different views of the input data with a number of models with different architectures
+and learning algorithms, which are first trained on the labeled examples. The trained models are then used to label a given
+example $$x_i$$ if a majority of models confidently agree on the label of an example.
 
 
+### Tri-Training
+Tri-training ([Zhi-Hua Zhou et al](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.487.2431&rep=rep1&type=pdf))
+tries to reduce the bias of the predictions on unlabeled data produced with self-training
+by utilizing the agreement of three independently trained models instead of a single model.
+First, the labeled data $$\mathcal{D}_l$$ is used to train three prediction functions: $$f_{\theta_1}$$, $$f_{\theta_2}$$ and $$f_{\theta_3}$$.
+An unlabeled data point $$x_i$$ is then added to the supervised training set of the function $$f_{\theta_i}$$ if the other two models
+agree on its predicted label, the training stops if no data points are being added to any of the models training sets.
+
+For a stronger heuristic when selecting the prediction to consider as proxy labels,
+**Tri-training with disagreement** ([Anders Søgaard](https://www.aclweb.org/anthology/P10-2038.pdf)),
+in addition to the only considering confident predictions with a probability higher that 
+a threshold $$\tau$$,
+only adds a data point $$x_i$$ to the training set of the model $$f_{\theta_i}$$ 
+if the other two models agree, and $$f_{\theta_i}$$ disagree on the predicted label.
+This way the training set of a given model is only extended with data points where the model needs
+to be strengthened and the easy examples that can skew the labeled data are avoided.
+
+Using Tri-training with neural networks can be very expensive, requiring predictions for each one of the three models on 
+all the unlabeled data. [Sebastian Ruder et al.](https://arxiv.org/abs/1804.09530) propose to sample a
+limited number of unlabeled data points at each training epoch,
+the candidate pool size is increased as the training progresses and the models become more accurate.
+**Multi-task tri-training** ([Sebastian Ruder et al.](https://arxiv.org/abs/1804.09530))
+can also be used to reduce the time and sample complexity, where all three models
+share the same feature-extractor with model-specific classification layers. This way, the models are trained jointly
+with an additional orthogonality constraint on two of the three classification layers to be added to loss term, to avoiding
+learning similar models and falling back to the standard case of self-training.
 
 
+# Holistic Methods
+
+An emerging line of work in SSL are a set of holistic approaches, that tries to unify the current dominant approaches in SSL
+in a single framework, achieving better performances.
 
 
+## MixMatch
+
+[David Berthelot et al.](https://arxiv.org/abs/1905.02249) propose “holistic” approach which gracefully unifies
+ideas and components from the dominant paradigms for SSL, resulting in a algorithm that is greater than the sum of its parts,
+surpassing the performance of traditional approaches.
+
+<figure style="width: 75%" class="align-center">
+  <img src="{{ 'images/SSL/mixmatch.png' | absolute_url }}" alt="">
+  <figcaption>Fig. 11. MixMatch.
+   (Image source: <a href="https://arxiv.org/abs/1905.02249">David Berthelot et al.</a>)
+  </figcaption>
+</figure>
+
+MixMatch takes as input a batch from the labeled set $$\mathcal{D}_l$$ containing a pairs of inputs and their corresponding one-hot targets,
+a batch from the unlabeled set $$\mathcal{D}_{ul}$$ containing only unlabeled input, and a set of hyperparameters: sharpening softmax temperature $$T$$,
+number of augmentations $$K$$, Beta distribution parameter $$\alpha$$ for MixUp. And produces a batch of augmented labeled examples
+and a batch of augmented unlabeled examples with their proxy labels. These augmented examples can then be used to
+compute the losses and train the model. Specifically, MixMatch consists of the following steps:
+* **Step 1: Data Augmentation.** Using an given transformation, a labeled example $$x_i^l$$ from the labeled batch in transformed, generating
+its augmented versions $$\tilde{x}_i^l$$. For an unlabeled example $$x_i^u$$, the augmentation function is applied K times, resulting in K augmented
+versions of the unlabeled examples {$$\tilde{x}_{i_1}^u$$, ..., $$\tilde{x}_{i_K}^u$$}.
+* **Step 2: Label Guessing.** The second step consists of producing proxy labels for the unlabeled examples.
+First, we generate the predictions for the K augmented versions of 
+each unlabeled example using the predictions function $$f_\theta$$. The K prediction are then averaged obtaining 
+a proxy or the pseudo label $$\hat{y}^u_i = 1/K \sum_{k=1}^{K} \hat{y}^u_{i_k}$$ for each one of the augmentations of the unlabeled example $$x^u_i$$:
+{($$\tilde{x}_{i_1}^u, \hat{y}^u_i$$), ..., ($$\tilde{x}_{i_K}^u, \hat{y}^u_i$$)}.
+* **Step 3: Sharpening.** To push the model to produce confident predictions and minimize the entropy of the output distribution, the generated
+proxy labels $$\hat{y}^u_i$$ in step 2 in the form of a probability distribution over $$L$$ classes are sharpened by adjusting the temperature
+of this categorical distribution, computed as follows where $$\hat{y}^u_i(l)$$ refers to the probability of class $$l$$:
+
+$$\hat{y}^u_i(l) = \hat{y}^u_i(l)^{\frac{1}{T}} / \sum_{l=1}^{L} \hat{y}^u_i(l)^{\frac{1}{T}} $$
+
+* **Step 4 MixUp.** After the previous step, we created two new augmented batch, a batch $$\mathcal{L}$$ of augmented labeled
+examples and their target, a batch $$\mathcal{U}$$ of augmented labeled their sharpened proxy labels. Note that the size
+the $$\mathcal{U}$$ is $$K$$ times larger than the original batch, given that each example is replaced by its $$K$$
+augmented versions. In the last step, we mix these two batches. First, a new batch merging both batches is created
+$$\mathcal{W}=\text{Shuffle}(\text{Concat}(\mathcal{L}, \mathcal{U}))$$. $$\mathcal{W}$$ is then
+divided into two batches: $$\mathcal{W}_1$$ of the same size as $$\mathcal{L}$$ and $$\mathcal{W}_2$$ of the same
+size as $$\mathcal{L}$$. Using The Mixup operation that is slightly adjusted so that the mixed
+example is closer the labeled examples. The final step is to create new labeled and unlabeled batches by mixing the together
+using Mixup as follows:
+
+$$\mathcal{L}{\prime}=\operatorname{MixUp}(\mathcal{L}, \mathcal{W}_1)$$
+
+$$\mathcal{U}{\prime}=\operatorname{MixUp}(\mathcal{U}, \mathcal{W}_2)$$
+
+After creating two augmented batches $$\mathcal{L}{\prime}$$ and $$\mathcal{U}{\prime}$$ using MixMatch,
+we can then train the model using the standard SSL by computing the CE loss for the supervised loss, and
+the consistency loss for the unsupervised loss using the augmented batches as follows:
+
+$$\mathcal{L}_s=\frac{1}{|\mathcal{L}^{\prime}|} \sum_{x_i^l, y_i \in \mathcal{L}^{\prime}}
+\mathrm{H}(y_i, f_\theta(x_i^l)))$$
+
+$$\mathcal{L}_u=w(t) \frac{1}{|\mathcal{U}^{\prime}|} \sum_{x_i^u, \hat{y}_i \in \mathcal{U}^{\prime}}
+d_{\mathrm{MSE}}(\hat{y}_i, f_{\theta}(x_i^u))$$
+
+## ReMixMatch
+
+[David Berthelot et al.](https://arxiv.org/abs/1911.09785) propose to
+improve MixMatch by introducing two new techniques: **distribution alignment** and **augmentation anchoring**.
+Distribution alignment encourages the marginal distribution of predictions on unlabeled data
+to be close to the marginal distribution of ground-truth labels. Augmentation anchoring feeds multiple strongly
+augmented versions of an input into the model and encourages each output to be close to the prediction
+for a weakly-augmented version of the same input.
+
+<figure style="width: 90%" class="align-center">
+  <img src="{{ 'images/SSL/remixmatch.png' | absolute_url }}" alt="">
+  <figcaption>Fig. 13. ReMixMatch.
+   (Image source: <a href="https://arxiv.org/abs/1911.09785">Hieu Pham et al</a>)
+  </figcaption>
+</figure>
+
+**Distribution alignment:** In order to force that the aggregate of predictions on unlabeled data matches
+the distribution of the provided labeled data. Over the course of training, a running average $$\tilde{y}$$ of the model’s predictions
+on unlabeled data is maintained over the last 128 batches. For the marginal class distribution $$p(y)$$, it is estimated based on the labeled
+examples seen during training. Given a prediction $$f_{\theta}(x_u)$$ on the unlabeled example $$x_u$$, the output probability distribution
+is aligned as follows: $$f_{\theta}(x_u) = \text { Normalize }(f_{\theta}(x_u) \times p(y) / \tilde{y})$$.
 
 
+**Augmentation Anchoring:** MixMatch uses a simple flip-and-crop augmentation strategy, ReMixMatch replaces the weak augmentations with strong augmentations
+learned using a control theory based augmentation strategy based on AutoAugment. Using such augmentation, the model’s prediction for a weakly augmented unlabeled image is used as the guessed label for many strongly augmented versions of the same image in a standard cross-entropy loss.
+
+For training, MixMatch is applied to the unlabeled and labeled batches, with the application of distribution alignment and the replacing the K weakly
+augmented example with strongly augmented example, in addition to using to using the weakly augmented examples for predicting proxy labels
+for the unlabeled strongly augmented examples. With two augmented batches $$\mathcal{L}^{\prime}$$ and $$\mathcal{U}^{\prime}$$, the
+supervised and unsupervised losses are computed as follows:
+
+$$\mathcal{L}_s=\frac{1}{|\mathcal{L}^{\prime}|} \sum_{x^l, y \in \mathcal{L}^{\prime}}
+\mathrm{H}(y, f_\theta(x^l)))$$
+
+$$\mathcal{L}_u=w(t) \frac{1}{|\mathcal{U}^{\prime}|} \sum_{x^u, \hat{y} \in \mathcal{U}^{\prime}}
+\mathrm{H}(\hat{y}, f_\theta(x^u)))$$
+
+In addition to these losses, the authors add a self-supervised loss. First, a new unlabeled batch
+$$\hat{\mathcal{U}}^{\prime}$$ of examples is created by rotating all of the examples with a angle $$r \sim\{0,90,180,270\}$$. The rotated
+examples are then used to compute a self-supervised loss, where classification layer on top of the model prediction the correct applied
+rotation, in addition to the cross-entropy loss over the rotated examples:
+
+$$\mathcal{L}_{SL} = w^{\prime}(t)
+\frac{1}{|\hat{\mathcal{U}}^{\prime}|} \sum_{x^u, \hat{y} \in \hat{\mathcal{U}}^{\prime}}
+\mathrm{H}(\hat{y}, f_\theta(x^u))) + \lambda
+\frac{1}{|\hat{\mathcal{U}}^{\prime}|} \sum_{x^u \in \hat{\mathcal{U}}^{\prime}}
+\mathrm{H}(r, f_\theta(x^u)))$$
+
+## FixMatch
+
+[Kihyuk Sohn et al.](https://arxiv.org/abs/2001.07685) present FixMatch, a simple SSL algorithm that combines consistency regularization and pseudo-labeling.
+In FixMatch (Figure 14), both the supervised and unsupervised loss are computed using a cross-entropy loss.
+For labeled examples, the provided targets are used. For unlabeled examples $$x_u$$, a weakly augmented version is first compute
+using weak augmentation function $$A_w$$. As in self-training, the predicted label is then considered as a proxy label if 
+the highest probability is greater than a threshold $$\tau$$. With a proxy label, $$K$$ strongly augmented examples are generated
+using a strong augmentation function $$A_s$$, we then assign to these augmented version the proxy label obtained with the weakly
+labeled version. With a batch of unlabeled examples of size $$B$$, the unsupervised loss can be written as follows:
+
+$$
+\mathcal{L}_u = w(t)=\frac{1}{K B} \sum_{i=1}^{K B}
+\mathbb{1}(\max (f_\theta(A_w(x^u_i))) \geq \tau)
+\mathrm{H} (f_\theta(A_w(x^u_i)), f_\theta(A_s(x^u_i)))
+$$
+
+<figure style="width: 75%" class="align-center">
+  <img src="{{ 'images/SSL/fixmatch.png' | absolute_url }}" alt="">
+  <figcaption>Fig. 14. FixMatch.
+   (Image source: <a href="https://arxiv.org/abs/2001.07685">Hieu Pham et al</a>)
+  </figcaption>
+</figure>
+
+**Augmentations.** Weak augmentations consist of a standard flip-and-shift augmentation strategy.
+Specifically, the images are flipped horizontally with a probability of 50% on all datasets except SVHN, in addition to randomly translating
+images by up to 12.5% vertically and horizontally. For the strong augmentations, RandAugment and CTAugment are used
+where a given transformation (e.g., color inversion, translation, contrast adjustment, etc.), is randomly selected for each sample in a batch
+of training examples, where the amplitude of the transformation is a hyperparameter that is optimized during training.
+
+Another important factors in the FixMatch are the usage of adam optimizer, weight decay regularization and the learning rate schedule used, Kihyuk Sohn et al. propose to use a cosine learning rate decay with a decay of 
+$$\eta \cos (\frac{7 \pi t}{16 T})$$,
+where $$\eta$$ is the initial learning rate, $$t$$ is the current training step, and $$T$$ is the total number of training steps.
 
 
+# References
 
+<sup>
+[1] Chapelle et al. [Semi-supervised learning book](http://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf). IEEE Transactions on Neural Networks, 2009.  
+[2] Xiaojin Jerry Zhu. [Semi-supervised learning literature survey](http://www.acad.bg/ebook/ml/MITPress- SemiSupervised Learning.pdf). Technical report, University of Wisconsin-Madison Department of Computer Sciences, 2005.  
+[3] Rasmus et al. [Semi-supervised learning with ladder networks](http://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf). NIPS 2015.  
+[4] Samuli Laine, Timo Aila. [Temporal Ensembling for Semi-Supervised Learning](https://arxiv.org/abs/1610.02242). ICLR 2017.  
+[5] Harri Valpola et al. [From neural PCA to deep unsupervised learning](https://arxiv.org/abs/1411.7783). Advances in Independent Component Analysis and Learning Machines 2015.  
+[6] Antti Tarvainen, Harri Valpola. [Mean teachers are better role models:Weight-averaged consistency targets improve semi-supervised deep learning results](https://arxiv.org/abs/1703.01780). NIPS 2017.  
+[7] Takeru Miyato et al. [Virtual adversarial training: a regularization method for supervised and semi-supervised learning.](https://arxiv.org/abs/1704.03976) Transactions on Pattern Analysis and Machine Intelligence 2018.  
+[8] Ian Goodfellow et al. [Explaining and harnessing adversarial examples.](https://arxiv.org/abs/1412.6572). ICLR 2015.  
+[9] Sungrae Park et al. [Adversarial Dropout for Supervised and Semi-Supervised Learning.](https://arxiv.org/abs/1707.03631). AAAI 2018.  
+[10] Vikas Verma et al. [Interpolation Consistency Training for Semi-Supervised Learning.](https://arxiv.org/abs/1903.03825). IJCAI 2019.  
+[11] Qizhe Xie et al. [Unsupervised Data Augmentation for Consistency Training.](https://arxiv.org/abs/1904.12848). arXiv 2019.  
+[12] Zhanghan Ke et al. [Dual Student: Breaking the Limits of the Teacher in Semi-supervised Learning.](https://arxiv.org/abs/1909.01804). ICCV 2019.  
+[13] Sebastian Ruder et al. [Strong Baselines for Neural Semi-supervised Learning under Domain Shift.](https://arxiv.org/abs/1804.09530). ACL 2018.  
+[14] Hieu Pham et al. [Meta Pseudo Labels.](https://arxiv.org/abs/2003.10580) Preprint 2020.  
+[15] Jing Zhao et al. [Multi-view learning overview: Recent progress and new challenges.](https://www.sciencedirect.com/science/article/abs/pii/S1566253516302032) Information Fusion, 2017.  
+[16] Avrim Blum, Tom Michael. [Combining labeled and unlabeled data with co-training.](https://www.cs.cmu.edu/~avrim/Papers/cotrain.pdf), COLT 1992. 
+[17] Siyuan Qiao, Wei Shen, Zhishuai Zhang, Bo Wang, Alan Yuille. [Deep Co-Training for Semi-Supervised Image Recognition.](https://arxiv.org/abs/1803.05984), ECCV 2018.  
+[18] Yan Zhou, Sally Goldman. [Democratic Co-Learning.](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.76.3152&rep=rep1&type=pdf), ICTAI 2004.  
+[19] Zhi-Hua Zhou, Ming Li. [Tri-Training: Exploiting Unlabled Data Using Three Classifiers.](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.487.2431&rep=rep1&type=pdf) IEEE Trans.Data Eng 2015.  
+[20] Anders Søgaard. [Simple Semi-Supervised Training of Part-Of-Speech Taggers.](https://www.aclweb.org/anthology/P10-2038.pdf) NIPS 2019.  
+[21] Yves Grandvalet et al. [Semi-supervised learning by entropy minimization.](http://papers.nips.cc/paper/740-semi-supervised-learning-by-entropy-minimization.pdf) NIPS 2005.  
+[22] David Berthelot et al. [MixMatch: A Holistic Approach to Semi-Supervised Learning.](https://arxiv.org/abs/1905.02249) NIPS 2019.  
+[23] David Berthelot et al. [ReMixMatch: Semi-Supervised Learning with Distribution Matching and Augmentation Anchoring.](https://arxiv.org/abs/1911.09785) ICLR 2020.  
+[24] Kihyuk Sohn et al. [FixMatch: Simplifying Semi-Supervised Learning with Consistency and Confidence.](https://arxiv.org/abs/2001.07685) Preprint 2020.  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### References
-
-[1] Chapelle et al. [Semi-supervised learning book](http://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf). IEEE Transactions on Neural Networks, 2009.
-
-[2] Xiaojin Jerry Zhu. [Semi-supervised learning literature survey](http://www.acad.bg/ebook/ml/MITPress- SemiSupervised Learning.pdf). Technical report, University of Wisconsin-Madison Department of Computer Sciences, 2005.
-
-[3] Rasmus et al. [Semi-supervised learning with ladder networks](http://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf). NIPS 2015.
-
-[4] Samuli Laine, Timo Aila. [Temporal Ensembling for Semi-Supervised Learning](https://arxiv.org/abs/1610.02242). ICLR 2017.
-
-[5] Harri Valpola et al. [From neural PCA to deep unsupervised learning](https://arxiv.org/abs/1411.7783). Advances in Independent Component Analysis and Learning Machines 2015.
-
-[6] Antti Tarvainen, Harri Valpola. [Mean teachers are better role models:Weight-averaged consistency targets improve semi-supervised deep learning results](https://arxiv.org/abs/1703.01780). NIPS 2017.
-
-[7] Takeru Miyato et al. [Virtual adversarial training: a regularization method for supervised and semi-supervised learning.](https://arxiv.org/abs/1704.03976). Transactions on Pattern Analysis and Machine Intelligence 2018.
