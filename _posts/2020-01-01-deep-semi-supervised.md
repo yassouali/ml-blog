@@ -6,7 +6,7 @@ excerpt: "Given the large amounts of training data required to train deep nets,
           Semi-supervised learning (SSL) is possible solutions to such hurdles. In this blog post
           we present some of the new advance in SSL in the age of Deep Learning."
 date: 2020-01-17 18:00:00
-published: false
+published: true
 tags: 
   - long-read
   - deep-learning
@@ -182,11 +182,11 @@ from the input to the last layer $$L$$, with a weighting $$\lambda_{l}$$ for eac
 $$\mathcal{L}_u = \frac{1}{|\mathcal{D_u}|} \sum_{x \in \mathcal{D_u}} \sum_{l=0}^{L} \lambda_{l}\|\mathbf{z}^{(l)}-\hat{\mathbf{z}}^{(l)}\|^{2}$$
 
 If the input $$x$$ is a labeled data point ($$x \in \mathcal{D_l}$$). Then we can add a supervised loss term
-to $$\mathcal{L}_u$$ to obtain the final loss. Note the supervised cross-entropy
+to $$\mathcal{L}_u$$ to obtain the final loss. Note the supervised cross-entropy $$\mathbf{H}(\tilde{y}, t)$$
 loss is computed between the corrupted output $$\tilde{y}$$ and the targets $$t$$:
 
 $$\mathcal{L} = \mathcal{L}_u  + \mathcal{L}_s = \mathcal{L}_u +
-\frac{1}{|\mathcal{D_l}|} \sum_{x, t \in \mathcal{D_l}} \log P(\tilde{y}|t)$$
+\frac{1}{|\mathcal{D_l}|} \sum_{x, t \in \mathcal{D_l}} \mathbf{H}(\tilde{y}, t)$$
 
 <figure style="width: 75%" class="align-center">
   <img src="{{ 'images/SSL/ladder_network.png' | absolute_url }}" alt="">
@@ -216,12 +216,12 @@ For any given input $$x$$, the objective is to reduce the distances between two 
 Concretely, as illustrated in Figure 3, we would like to minimize $$d(z, \tilde{z})$$ where we consider one of the two outputs as a target.
 Given the stochastic nature of the predictions function (ie., using dropout as noise source),
 the two outputs $$f_\theta(x) = z$$ and $$f_\theta(x) = \tilde{z}$$ will be distinct. And the objective is
-to obtain consistent predictions for both of them. In case the input $$x$$ is a labeled data point, we also compute the cross-entropy supervised loss using the provided labels $$y$$ and the total loss will be:
+to obtain consistent predictions for both of them. In case the input $$x$$ is a labeled data point,
+we also compute the cross-entropy supervised loss using the provided labels $$y$$ and the total loss will be:
 
 $$\mathcal{L} = w \frac{1}{|\mathcal{D_u}|} \sum_{x \in \mathcal{D_u}}
 d_{\mathrm{MSE}}(z, \tilde{z}) + 
-\frac{1}{|\mathcal{D_l}|} \sum_{x, y \in \mathcal{D_l}}
-y \log(z)$$
+\frac{1}{|\mathcal{D_l}|} \sum_{x, y \in \mathcal{D_l}} \mathbf{H}(y, z)$$
 
 With $$w$$ as a weighting function, starting from 0 up to a fixed weight $$\lambda$$ (eg., 30) after a given number of epochs (eg., 20% of training time). This way, we avoid using the untrained and random prediction function providing us with unstable predictions at the start of training to extract the training signal from
 the unlabeled examples.
@@ -321,7 +321,7 @@ for the unsupervised loss for a given input $$x_i$$:
 
 $$\mathcal{L} = w \frac{1}{|\mathcal{D_u}|} \sum_{x \in \mathcal{D_u}}
 d_{\mathrm{MSE}}(f_{\theta}(x), f_{\theta^{\prime}}(x)) + 
-\frac{1}{|\mathcal{D_l}|} \sum_{x, y \in \mathcal{D_l}} y\log(f_{\theta}(x))$$
+\frac{1}{|\mathcal{D_l}|} \sum_{x, y \in \mathcal{D_l}} \mathbf{H}(y, f_{\theta}(x))$$ 
 
 ## Dual Students
 
@@ -343,7 +343,7 @@ $$f_{\theta_1}$$ and $$f_{\theta_2}$$, an unlabeled input $$x_u$$ and its pertur
 compute the four predictions: $$f_{\theta_1}(x_u), f_{\theta_1}(\tilde{x}_u), f_{\theta_2}(x_u), f_{\theta_2}(\tilde{x}_u)$$.
 In addition to training each model to minimize both the supervised and unsupervised losses for one of the models $$f_{\theta_i}$$:
 
-$$\mathcal{L}_s = \frac{1}{|\mathcal{D_l}|} \sum_{x_u, y \in \mathcal{D_l}} y\log(f_{\theta_i}(x_l))$$
+$$\mathcal{L}_s = \frac{1}{|\mathcal{D_l}|} \sum_{x_u, y \in \mathcal{D_l}} \mathbf{H}(y, f_{\theta}_i(x_l))$$
 
 $$\mathcal{L}_u = \frac{1}{|\mathcal{D_u}|} \sum_{x_u \in \mathcal{D_u}} d_{\mathrm{MSE}}(f_{\theta_i}(x_u), f_{\theta_i}(\tilde{x}_u))$$
 
@@ -419,7 +419,7 @@ is an EMA teacher model of the student $$f_{\theta}$$.
 
 <figure style="width: 75%" class="align-center">
   <img src="{{ 'images/SSL/vat.png' | absolute_url }}" alt="">
-  <figcaption>Fig. 6. Examples of the perturbed inputs for different values of the scaling hyperparameter Ɛ.
+  <figcaption>Fig. 7. Examples of the perturbed inputs for different values of the scaling hyperparameter Ɛ.
    (Image source: <a href="https://arxiv.org/abs/1704.03976">Takeru Miyato et al</a>)
   </figcaption>
 </figure>
@@ -475,7 +475,7 @@ efficient consistency regularization technique for SSL.
 Given a mixup operation
 $$\operatorname{Mix}_{\lambda}(a, b)=\lambda \cdot a+(1-\lambda) \cdot b$$ that outputs an interpolation
 between the two inputs with a weight $$\lambda \sim \operatorname{Beta}(\alpha, \alpha)$$ for $$\alpha \in(0, \infty)$$.
-As shown in Figure 7, ICT trains a prediction function $$f_{\theta}$$ to provide consistent predictions at different interpolations 
+As shown in Figure 8, ICT trains a prediction function $$f_{\theta}$$ to provide consistent predictions at different interpolations 
 of unlabeled data points $$u_i$$ and $$u_j$$, where the targets are generated using a teacher model $$f_{\theta^{\prime}}$$
 which is an EMA of $$f_{\theta}$$:
 
@@ -484,7 +484,7 @@ $$f_{\theta}(\operatorname{Mix}_{\lambda}(u_{j}, u_{k})) \approx
 
 <figure style="width: 90%" class="align-center">
   <img src="{{ 'images/SSL/ICT.png' | absolute_url }}" alt="">
-  <figcaption>Fig. 7. ICT where a student model is trained to have consistent predictions at different interpolations 
+  <figcaption>Fig. 8. ICT where a student model is trained to have consistent predictions at different interpolations 
   of unlabeled data points, where a teacher is used to generated the targets before the mixup operation.
    (Image source: <a href="https://arxiv.org/abs/1903.03825">Vikas Verma et al</a>)
   </figcaption>
@@ -527,12 +527,12 @@ into another language B, and then translating it back into A to obtain an augmen
 
 <figure style="width: 90%" class="align-center">
   <img src="{{ 'images/SSL/uda.png' | absolute_url }}" alt="">
-  <figcaption>Fig. 8. The training procedure in UDA.
+  <figcaption>Fig. 9. The training procedure in UDA.
    (Image source: <a href="https://arxiv.org/abs/1904.12848">Qizhe Xie et al</a>)
   </figcaption>
 </figure>
 
-After defining the augmentations to be applied during training, the training procedure shown in Figure 8 is quite straight forward.
+After defining the augmentations to be applied during training, the training procedure shown in Figure 9 is quite straight forward.
 The objective is to have the correct predictions over the labeled set, and a consistency of predictions
 on the original and augmented examples from the unlabeled set.
 
@@ -745,7 +745,7 @@ for a weakly-augmented version of the same input.
 
 <figure style="width: 90%" class="align-center">
   <img src="{{ 'images/SSL/remixmatch.png' | absolute_url }}" alt="">
-  <figcaption>Fig. 13. ReMixMatch.
+  <figcaption>Fig. 12. ReMixMatch.
    (Image source: <a href="https://arxiv.org/abs/1911.09785">Hieu Pham et al</a>)
   </figcaption>
 </figure>
@@ -785,7 +785,7 @@ $$\mathcal{L}_{SL} = w^{\prime}
 ## FixMatch
 
 [Kihyuk Sohn et al.](https://arxiv.org/abs/2001.07685) present FixMatch, a simple SSL algorithm that combines consistency regularization and pseudo-labeling.
-In FixMatch (Figure 14), both the supervised and unsupervised loss are computed using a cross-entropy loss.
+In FixMatch (Figure 13), both the supervised and unsupervised loss are computed using a cross-entropy loss.
 For labeled examples, the provided targets are used. For unlabeled examples $$x_u$$, a weakly augmented version is first compute
 using weak augmentation function $$A_w$$. As in self-training, the predicted label is then considered as a proxy label if 
 the highest class probability is greater than a threshold $$\tau$$. With a proxy label, $$K$$ strongly augmented examples are generated
@@ -800,7 +800,7 @@ $$
 
 <figure style="width: 75%" class="align-center">
   <img src="{{ 'images/SSL/fixmatch.png' | absolute_url }}" alt="">
-  <figcaption>Fig. 14. FixMatch.
+  <figcaption>Fig. 13. FixMatch.
    (Image source: <a href="https://arxiv.org/abs/2001.07685">Hieu Pham et al</a>)
   </figcaption>
 </figure>
