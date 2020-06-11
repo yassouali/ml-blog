@@ -5,13 +5,17 @@ excerpt: "Given the large amounts of training data required to train deep nets,
           there is a growing need to develop data efficient methods.
           Semi-supervised learning (SSL) is possible solutions to such hurdles. In this blog post
           we present some of the new advance in SSL in the age of Deep Learning."
-date: 2020-05-13 18:00:00
-published: false
+date: 2020-06-11 8:00:00
+published: true
 tags: 
   - long-read
   - deep-learning
   - semi-supervised
 ---
+
+<span style="color: #c8634d;">[A more detailed version of this post is available on [arXiv](https://arxiv.org/abs/2006.05278).]</span>
+<br/>
+<span style="color: #c8634d;">[A curated and an up-to-date list of SSL papers is available at [github](https://github.com/yassouali/awesome-semi-supervised-learning).]</span>
 
 Deep neural networks demonstrated their ability to provide remarkable performances on certain supervised learning tasks (e.g., image classification) when trained on
 extensive collections of labeled data (e.g. ImageNet). However,
