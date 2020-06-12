@@ -15,7 +15,7 @@ tags:
 
 <span style="color: #c8634d;">[A more detailed version of this post is available on [arXiv](https://arxiv.org/abs/2006.05278).]</span>
 <br/>
-<span style="color: #c8634d;">[A curated and an up-to-date list of SSL papers is available at [github](https://github.com/yassouali/awesome-semi-supervised-learning).]</span>
+<span style="color: #c8634d;">[A curated and an up-to-date list of SSL papers is available on [github](https://github.com/yassouali/awesome-semi-supervised-learning).]</span>
 
 Deep neural networks demonstrated their ability to provide remarkable performances on certain supervised learning tasks (e.g., image classification) when trained on
 extensive collections of labeled data (e.g. ImageNet). However,
