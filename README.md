@@ -8,9 +8,8 @@ My personal page / blog, built using [jekyll](https://jekyllrb.com/) and hosted 
 
 [![](images/banner.png)](https://yassouali.github.io/ml-blog/)
 
-If you would like to use this template, you can simply create a repo named `GHusername.github.io`, clone this repo and
-push it to the repo you've juste created, change the corresponding fields in `_config.yml`, you can also change the 
-the logos and backgrounds images in `images`, and then your website should will be up and running.
+If you would like to use this template, you can simply fork this repo and rename it `GHusername.github.io`, or clone this repo, name it the same way, and push it to your account. You'll also need to change the corresponding fields in `_config.yml`, you can also change the 
+the logos and backgrounds images in `images`, and then your website should will be up and running, and will live at `GHusername.github.io`.
 If you wish, you can also change the HTML and css layouts that are 
 defined in `_layouts/`, `_includes/` and `_sass`.
 
