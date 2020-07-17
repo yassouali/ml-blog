@@ -1,13 +1,14 @@
 # Site navigation links
 
-# - title: Posts
-#   url: pages/posts/
 - title: Posts
   url: /pages/posts/
+  emoji: em-spiral_note_pad
 - title: Tags
   url: pages/tags/
+  emoji: em-pushpin
 - title: About
   url: pages/about/
+  emoji: em-information_source
 # - title: Personal
 #   url: pages/personal/
 # - title: Categories

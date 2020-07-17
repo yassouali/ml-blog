@@ -16,7 +16,13 @@
           {%- else -%}
             {%- assign url = link.url | relative_url -%}
           {%- endif -%}
-          <li><a href="{{ url }}">{{ link.title }}</a></li>
+          <li>
+            <a href="{{ url }}">{{ link.title }}
+          {% if link.emoji %}
+            <i class="em {{ link.emoji }}" aria-role="presentation" style="margin: 2px;"></i>
+          {% endif %}
+          </a>
+          </li>
         {%- endfor -%}
       </ul>
     </nav>
