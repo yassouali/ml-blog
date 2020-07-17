@@ -3,7 +3,7 @@ remote_theme: mmistakes/so-simple-theme
 
 locale: en-US
 title: "Yassine"
-description: "A blog about everything Machine Learning and Computer Science."
+description: "A(nother) Machine Learning Blog"
 baseurl: "/ml-blog"
 url: "https://yassouali.github.io/"
 
