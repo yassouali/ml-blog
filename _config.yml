@@ -92,26 +92,26 @@ defaults:
 
 # Site Author
 author:
-  name: Yassine #Ouali
+  name: Yassine
   picture: 
   email: ouali.yasine@gmail.com
   twitter: mmistakes
   links:
-    - title: Twitter
-      url: https://twitter.com/yass_ouali
-      icon: fab fa-twitter-square
-    - title: Instagram
-      url: https://www.instagram.com/yas_ouali/
-      icon: fab fa-instagram
+    # - title: Twitter
+    #   url: https://twitter.com/yass_ouali
+    #   icon: fab fa-twitter-square
+    # - title: Instagram
+    #   url: https://www.instagram.com/yas_ouali/
+    #   icon: fab fa-instagram
     - title: GitHub
       url: https://github.com/yassouali
       icon: fab fa-github-square
 
 # Footer Links
 footer_links:
-  - title: Twitter
-    url: https://twitter.com/yass_ouali
-    icon: fab fa-twitter-square
+  # - title: Twitter
+  #   url: https://twitter.com/yass_ouali
+  #   icon: fab fa-twitter-square
   - title: GitHub
     url: https://github.com/yassouali
     icon: fab fa-github-square
