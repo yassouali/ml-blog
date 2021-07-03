@@ -212,12 +212,15 @@ hr {
   margin: 1em 1em;
   padding: 2em 0;
   text-align: center;
-  // border-top: 0.1px solid $border-color;
   padding-top: 10px;
   padding-bottom: 0px;
   position:fixed;
   bottom:0;
   width:100%;
+
+  @include breakpoint($small) {
+    position:relative;
+  }
 
   .social-icons {
     margin-bottom: 0.25em;
