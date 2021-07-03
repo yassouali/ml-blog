@@ -209,18 +209,26 @@ hr {
 
 .site-footer-fixed {
   @include clearfix();
+
+  @include breakpoint($small) {
+    position:relative;
+  }
+
+  @include breakpoint($medium) {
+    position:fixed;
+  }
+  
+  @include breakpoint($large) {
+    position:fixed;
+  }
+
   margin: 1em 1em;
   padding: 2em 0;
   text-align: center;
   padding-top: 10px;
   padding-bottom: 0px;
-  position:fixed;
   bottom:0;
   width:100%;
-
-  @include breakpoint($small) {
-    position:relative;
-  }
 
   .social-icons {
     margin-bottom: 0.25em;
