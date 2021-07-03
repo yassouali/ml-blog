@@ -1,5 +1,9 @@
+{% if page.title != 'About' %}
 <footer id="footer" class="site-footer">
   {% include footer-custom.html %}
+{% else %}
+  <footer id="footer" class="site-footer-fixed">
+{% endif %}
 
   {%- if site.footer_links -%}
     <div class="social-icons">
