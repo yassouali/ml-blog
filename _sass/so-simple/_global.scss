@@ -208,15 +208,13 @@ hr {
 
 .site-footer-fixed {
   @extend .site-footer;
-  @include breakpoint($small) {
+
+
+  @include breakpoint($large) {
     position:relative;
   }
 
-  @include breakpoint($medium) {
-    position:relative;
-  }
-  
-  @include breakpoint($large) {
+  @include breakpoint($xxlarge) {
     position:fixed;
   }
 }
